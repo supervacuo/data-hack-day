@@ -1,7 +1,9 @@
+## The following requirements were added by pip --freeze:
 Django==1.4
 South==0.7.4
 distribute==0.6.24
 -e git+http://github.com/dyve/django-bootstrap-toolkit.git@669bae64e748dee031a4db081518fecfbf5a1ed1#egg=django_bootstrap_toolkit-dev
+django-model-utils==1.0.0
 django-tagging==0.3.1
 gdata==2.0.16
 ipython==0.12

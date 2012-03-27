@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Add Youtube Video to {{ event.name|title }}{% endblock title %}
+
+{% block extra_head %}
+		{{ form.media }}
+{% endblock %}
+
+{% block content %}<h1>Add New Youtube Video to "{{ event.name|title }}"</h1>
+
+<div>
+	<form action='.' method='post'>
+		{% csrf_token %}
+		{{ media_object_form|as_bootstrap }}
+		{{ youtube_form|as_bootstrap }}
+	 <input type='submit' value='Add video' class='btn btn-primary'>
+	</form>
+</div>{% endblock content %}

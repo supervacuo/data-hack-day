@@ -1,0 +1,44 @@
+{% extends 'media_object/base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Media Object {{ media_object.name }}{% endblock title %}
+
+{% block content %}<h1><a href='{% url central.views.media_objects.list event_id=event.id %}' class='btn btn-mini'><i class='icon-chevron-left'></i></a> {{ media_object.name }}</h1>
+
+<div class='row'>
+	{% if media_object_content.thumbnail %}<div class='span4'>
+		<a href='{{ media_object.url }}'><img src='{{ media_object_content.thumbnail }}' style='width: 300px;' alt='{{ media_object.name }}'/></a>
+	</div>{% endif %}
+	<div class='span8'>
+		<table class='table table-bordered table-striped'>
+			<thead>
+				<tr>
+					<th>Property</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Source</td>
+					<td><a href='{{ media_object.url }}'>{{ media_object.url }}</a></td>
+				</tr>
+				<tr>
+					<td>Author</td>
+					<td>{{ media_object.author }}</td>
+				</tr>
+				<tr>
+					<td>Date/time</td>
+					<td>{{ media_object.datetime }}</td>
+				</tr>
+				<tr>
+					<td>Type</td>
+					<td>{{ media_object_content_type }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class='span8 btn-group'>
+		<a class='btn btn-info' href='{% url central.views.media_objects.edit event_id=event.id media_object_id=media_object.id %}'>Edit <i class='icon-pencil icon-white'></i></a>
+		<a class='btn btn-danger' href='{% url central.views.media_objects.delete event_id=event.id media_object_id=media_object.id %}'>Delete <i class='icon-remove-sign icon-white'></i></a>
+</div>
+
+{% endblock content %}

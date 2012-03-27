@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Login{% endblock title %}
+
+{% block content %}<h1>Login</h1>
+
+<form action='.' method='post'>
+	{% csrf_token %}
+	{{ form|as_bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+</form>{% endblock content %}

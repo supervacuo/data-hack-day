@@ -1,0 +1,17 @@
+{% extends 'event/base.html' %}
+
+{% block title %}{{ block.super }}: {{ event.name|title }}{% endblock title %}
+
+{% block content %}<h1>Event "{{ event.name }}"</h1>
+
+<h2>View Media Objects</h2>
+<ul class='nav nav-pills'>
+	<li>
+		<a href='{% url central.views.events.timeline event_id=event.id %}'>Timeline</a>
+	</li>
+	<li>
+		<a href='{% url central.views.media_objects.list event_id=event.id %}'>Media Objects</a>
+	</li>
+</ul>
+
+{% endblock content %}

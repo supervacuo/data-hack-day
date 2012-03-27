@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }}: Home{% endblock title %}
+
+{% block content %}<h1>Occupy Timeline</h1>
+<ul>{% for event in events %}
+	<li><a href='{% url central.views.events.detail event_id=event.id %}'>{{ event.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock content%}
