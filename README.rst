@@ -47,6 +47,7 @@ To-do
 * Implement proper user profile and registration system.
 * Date picker widget (tried; failed due to `Django bug`_).
 * CSV upload error handling and documentation.
+* Tests.
 * *etc.* *etc.*
 * Fix known bugs (see below).
 
