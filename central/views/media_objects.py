@@ -140,7 +140,7 @@ def add_csv(request, event_id):
 
 
 @login_required
-def edit(request, event_id):
+def edit(request, event_id, media_object_id):
 	raise NotImplementedError
 
 
