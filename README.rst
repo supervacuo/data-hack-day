@@ -47,6 +47,7 @@ To-do
 * Implement proper user profile and registration system.
 * Date picker widget (tried; failed due to `Django bug`_).
 * CSV upload error handling and documentation.
+* Non-stupid tree implementation using `django-mptt`_.
 * Tests.
 * *etc.* *etc.*
 * Fix known bugs (see below).
@@ -82,5 +83,6 @@ above) or e-mail (above; slightly lower down), please.
 .. _SIMILE Timeline widget: http://www.simile-widgets.org/timeline/
 .. _OccupyData Hackfest NYC: http://occupydatanyc.wordpress.com/
 .. _d3.js: http://mbostock.github.com/d3/
+.. _django-mptt: https://github.com/django-mptt/django-mptt
 .. _bootstrap: http://twitter.github.com/bootstrap/
 .. _Django bug: https://code.djangoproject.com/ticket/17981
