@@ -28,8 +28,8 @@ Install on GNU/Linux using::
 Features
 ----------------------------------
 
-* Automatically import some metadata from YouTube videos by pasting in the video
-  ID, thanks to the `python-gdata YouTube API`_.
+* Automatically import some metadata from YouTube videos and their comments by
+  pasting in the video ID, thanks to the `python-gdata YouTube API`_.
 * Create "Media objects" corresponding to online news stories, either by manual
   entry or CSV upload.
 * Manage (edit and delete) "Media objects".
@@ -42,8 +42,7 @@ To-do
 
 * Find a better name for the project...
 * Custom visualisation using `d3.js`_.
-* Import YouTube comments and tweets as "Responses", and add them to the
-  visualisation.
+* Import tweets as "Responses", and add them to the visualisation.
 * Implement proper user profile and registration system.
 * Date picker widget (tried; failed due to `Django bug`_).
 * CSV upload error handling and documentation.
