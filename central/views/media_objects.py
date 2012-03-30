@@ -185,19 +185,21 @@ def add_youtube(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 	video_id = None
 
-	ResponseObjectFormSet = modelformset_factory(
-		ResponseObject, 
-		exclude=('id', 'event', 'media_object', 'reply_to'), 
-		# Shouldn't be necessary in this coder's humble opinion
-		extra=6,
-		formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
 
 	if request.method == 'POST':
 		media_object_form = AddMediaObjectForm(request.POST, instance=MediaObject())
 		youtube_form = AddYoutubeVideoForm(request.POST, instance=YoutubeVideo())
+		ResponseObjectFormSet = modelformset_factory(
+			ResponseObject, 
+			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			# Shouldn't be necessary in this coder's humble opinion
+			extra=len([k for k in request.POST.keys() if 'response_object' in k]),
+			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
+
 		youtube_comments_formset = ResponseObjectFormSet(
 			request.POST,
-			queryset=ResponseObject.objects.none())
+			queryset=ResponseObject.objects.none(),
+			prefix='response_object')
 		
 		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
 			media_object = media_object_form.save()
@@ -228,20 +230,17 @@ def add_youtube(request, event_id):
 		media_object_form = AddMediaObjectForm(instance=media_object)
 		youtube_form = AddYoutubeVideoForm(instance=youtube_video)
 
+		ResponseObjectFormSet = modelformset_factory(
+			ResponseObject, 
+			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			# Shouldn't be necessary in this coder's humble opinion
+			extra=len(comments),
+			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
+
 		youtube_comments_formset = ResponseObjectFormSet(
-			initial=[{
-				'datetime': c.datetime,
-				'name': c.name,
-				'text': c.text,
-				'url': c.url,
-				'author': c.author,
-				'event': c.event,
-				'media_object': c.media_object,
-				'reply_to': c.reply_to,
-				'source_type': c.source_type,
-			} for c in comments],
-			queryset=ResponseObject.objects.none()
-		)
+			initial=[c.__dict__ for c in comments],
+			queryset=ResponseObject.objects.none(),
+			prefix='response_object')
 
 	data = {
 		'event': event,

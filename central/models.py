@@ -69,9 +69,9 @@ class ResponseObject(models.Model):
 	text = models.TextField(blank=True)
 	url = models.URLField(blank=True, null=True)
 	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH, blank=True)
-	event = models.ForeignKey(Event)
-	media_object = models.ForeignKey(MediaObject, null=True, blank=True)
-	reply_to = models.ForeignKey('self', null=True, blank=True)
+	event = models.ForeignKey(Event, related_name='responses')
+	media_object = models.ForeignKey(MediaObject, null=True, blank=True, related_name='responses')
+	reply_to = models.ForeignKey('self', null=True, blank=True, name='replies')
 	source_type = models.CharField(max_length=MAX_CHARFIELD_LENGTH, choices=SOURCES)
 
 	def __unicode__(self):
