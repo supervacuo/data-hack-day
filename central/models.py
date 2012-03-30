@@ -65,11 +65,10 @@ class ResponseObject(models.Model):
 	)
 
 	datetime = models.DateTimeField()
-	name = models.CharField(max_length=MAX_CHARFIELD_LENGTH, null=True,
-			blank=True)
-	text = models.TextField()
+	name = models.CharField(max_length=MAX_CHARFIELD_LENGTH, blank=True)
+	text = models.TextField(blank=True)
 	url = models.URLField(blank=True, null=True)
-	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
+	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH, blank=True)
 	event = models.ForeignKey(Event)
 	media_object = models.ForeignKey(MediaObject, null=True, blank=True)
 	reply_to = models.ForeignKey('self', null=True, blank=True)
