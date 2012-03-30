@@ -17,7 +17,7 @@ Installing
 
 Install on GNU/Linux using::
 
-  git clone https://supervacuo@github.com/supervacuo/data-hack-day.git data-hack-day
+  git clone https://github.com/supervacuo/data-hack-day.git data-hack-day
   cd data-hack-day
   pip install -r reqirements.txt
   cp youtubeparty/local_settings.py{.example,}
