@@ -7,10 +7,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import SuspiciousOperation
 from django.utils import simplejson
+from django import forms
 from django.http import HttpResponse
 from django.contrib import messages
+from django.forms.models import modelformset_factory
 
-from central.models import Event, MediaObject, YoutubeVideo, MediaObjectContent
+from central.models import Event, MediaObject, YoutubeVideo, MediaObjectContent, ResponseObject
 from central.forms import AddMediaObjectForm, AddYoutubeIDForm, AddYoutubeVideoForm, AddMediaObjectCSVForm
 
 
@@ -33,7 +35,23 @@ def __youtube_id_to_objects(youtube_id, event):
 	youtube_video.favorited = video.statistics.favorite_count
 	youtube_video.thumbnail = video.media.thumbnail[0].url
 
-	return media_object, youtube_video
+	comment_feed = yt_service.GetYouTubeVideoCommentFeed(video_id=youtube_id)
+
+	comment_list = []
+
+	for comment in comment_feed.entry:
+		response_object = ResponseObject()
+		response_object.title = comment.title.text
+		response_object.text = comment.content.text
+		response_object.datetime = datetime.strptime(comment.published.text,'%Y-%m-%dT%H:%M:%S.%fZ')
+		response_object.author = comment.author[0].name.text
+		response_object.event = event
+		response_object.media_object = media_object
+		response_object.source_type = 'yt'
+
+		comment_list.append(response_object)
+
+	return media_object, youtube_video, comment_list
 
 def detail(request, event_id, media_object_id):
 	media_object = get_object_or_404(MediaObject, id=media_object_id)
@@ -165,17 +183,34 @@ def add_youtube_in_bulk(request, event_id):
 
 def add_youtube(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
+	video_id = None
+
+	ResponseObjectFormSet = modelformset_factory(
+		ResponseObject, 
+		exclude=('id', 'event', 'media_object', 'reply_to'), 
+		# Shouldn't be necessary in this coder's humble opinion
+		extra=6,
+		formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
 
 	if request.method == 'POST':
 		media_object_form = AddMediaObjectForm(request.POST, instance=MediaObject())
 		youtube_form = AddYoutubeVideoForm(request.POST, instance=YoutubeVideo())
+		youtube_comments_formset = ResponseObjectFormSet(
+			request.POST,
+			queryset=ResponseObject.objects.none())
 		
-		if media_object_form.is_valid() and youtube_form.is_valid():
+		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
 			media_object = media_object_form.save()
 
 			youtube_object = youtube_form.save(commit=False)
 			youtube_object.media_object = media_object
 			youtube_object.save()
+			youtube_comments = youtube_comments_formset.save(commit=False)
+
+			for youtube_comment in youtube_comments:
+				youtube_comment.event = event
+				youtube_comment.media_object = media_object
+				youtube_comment.save()
 			messages.success(request, 'Added new YouTube video "%s"' % media_object.name)
 
 			return redirect(media_object)
@@ -184,24 +219,42 @@ def add_youtube(request, event_id):
 
 		media_object = None
 		youtube_video = None
-		video_id = None
 
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
 			
-			media_object, youtube_video = __youtube_id_to_objects(video_id, event)
+			media_object, youtube_video, comments = __youtube_id_to_objects(video_id, event)
 		
 		media_object_form = AddMediaObjectForm(instance=media_object)
 		youtube_form = AddYoutubeVideoForm(instance=youtube_video)
 
-		data = {
-			'event': event,
-			'media_object_form': media_object_form,
-			'youtube_form': youtube_form,
-			'video_id': video_id,
-		}
+		youtube_comments_formset = ResponseObjectFormSet(
+			initial=[{
+				'datetime': c.datetime,
+				'name': c.name,
+				'text': c.text,
+				'url': c.url,
+				'author': c.author,
+				'event': c.event,
+				'media_object': c.media_object,
+				'reply_to': c.reply_to,
+				'source_type': c.source_type,
+			} for c in comments],
+			queryset=ResponseObject.objects.none()
+		)
 
-		return render(request, 'management/add_youtube.html', data)
+		import pdb; pdb.set_trace()
+		print youtube_comments_formset.total_form_count()
+
+	data = {
+		'event': event,
+		'media_object_form': media_object_form,
+		'youtube_form': youtube_form,
+		'youtube_comments_formset': youtube_comments_formset,
+		'video_id': video_id,
+	}
+
+	return render(request, 'management/add_youtube.html', data)
 
 @login_required
 def delete(request, event_id, media_object_id):

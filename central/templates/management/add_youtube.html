@@ -13,6 +13,7 @@
 		{% csrf_token %}
 		{{ media_object_form|as_bootstrap }}
 		{{ youtube_form|as_bootstrap }}
+		{{ youtube_comments_formset }}
 	 <input type='submit' value='Add video' class='btn btn-primary'>
 	</form>
 </div>{% endblock content %}
