@@ -243,9 +243,6 @@ def add_youtube(request, event_id):
 			queryset=ResponseObject.objects.none()
 		)
 
-		import pdb; pdb.set_trace()
-		print youtube_comments_formset.total_form_count()
-
 	data = {
 		'event': event,
 		'media_object_form': media_object_form,
