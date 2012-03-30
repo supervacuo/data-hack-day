@@ -59,6 +59,11 @@ class MediaObject(models.Model):
 
 
 class ResponseObject(models.Model):
+	SOURCES = (
+		('yt', 'YouTube'), 
+		('tw', 'Twitter')
+	)
+
 	datetime = models.DateTimeField()
 	name = models.CharField(max_length=MAX_CHARFIELD_LENGTH, null=True,
 			blank=True)
@@ -66,6 +71,12 @@ class ResponseObject(models.Model):
 	url = models.URLField(blank=True, null=True)
 	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
 	event = models.ForeignKey(Event)
+	media_object = models.ForeignKey(MediaObject, null=True, blank=True)
+	reply_to = models.ForeignKey('self', null=True, blank=True)
+	source_type = models.CharField(max_length=MAX_CHARFIELD_LENGTH, choices=SOURCES)
+
+	def __unicode__(self):
+		return u'%s: %s by %s' % (self.source_type, self.datetime, self.author or 'unknown')
 
 	class Meta:
 		ordering = ['event', '-datetime']
