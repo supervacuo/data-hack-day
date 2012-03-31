@@ -8,7 +8,7 @@ MAX_CHARFIELD_LENGTH = 512
 
 
 class MediaObjectContent(models.Model):
-	media_object = models.OneToOneField('MediaObject')
+	media_object = models.OneToOneField('MediaObject', related_name='media_object_content')
 
 	objects = InheritanceManager()
 
@@ -44,7 +44,7 @@ class MediaObject(models.Model):
 	name = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
 	# plus tags / keywords
 	event = models.ForeignKey(Event)
-	parent = models.ForeignKey('self', null=True, blank=True)
+	parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
 	url = models.URLField()
 	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
 
@@ -53,6 +53,13 @@ class MediaObject(models.Model):
 
 	def get_absolute_url(self):
 		return u'/events/%d/media_objects/%d/' % (self.event.id, self.id)
+
+	def __type_name(self):
+		try:
+			return MediaObjectContent.objects.select_subclasses().get(media_object__id=self.id).__class__.__name__
+		except MediaObjectContent.DoesNotExist:
+			return None
+	type_name = property(__type_name)
 
 	class Meta:
 		ordering = ['event', '-datetime']

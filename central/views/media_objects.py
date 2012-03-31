@@ -85,8 +85,13 @@ def list(request, event_id):
 
 		for media_object in media_objects:
 			media_objects_list.append({
-				'start': media_object.datetime.isoformat(),
+				'datetime': media_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
 				'link': media_object.url,
+				'type': media_object.type_name,
+				'responses': [{
+						'datetime': r.datetime.isoformat(),
+						'author': r.author,
+					} for r in media_object.responses.all()],
 				'title': media_object.name})
 
 		json_obj = {
