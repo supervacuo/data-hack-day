@@ -26,7 +26,7 @@ def __youtube_id_to_objects(youtube_id, event):
 	media_object.event = event
 	media_object.name = video.title.text
 	media_object.url = video.GetHtmlLink().href
-	media_object.datetime = datetime.strptime(video.published.text,'%Y-%m-%dT%H:%M:%S.%fZ')
+	media_object.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 	youtube_video = YoutubeVideo()
 	youtube_video.views = video.statistics.view_count
@@ -43,7 +43,7 @@ def __youtube_id_to_objects(youtube_id, event):
 		response_object = ResponseObject()
 		response_object.title = comment.title.text
 		response_object.text = comment.content.text
-		response_object.datetime = datetime.strptime(comment.published.text,'%Y-%m-%dT%H:%M:%S.%fZ')
+		response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 		response_object.author = comment.author[0].name.text
 		response_object.event = event
 		response_object.media_object = media_object
@@ -53,27 +53,6 @@ def __youtube_id_to_objects(youtube_id, event):
 
 	return media_object, youtube_video, comment_list
 
-def detail(request, event_id, media_object_id):
-	media_object = get_object_or_404(MediaObject, id=media_object_id)
-
-	if media_object.event.id != int(event_id):
-		raise SuspiciousOperation
-
-	try:
-		media_object_content = MediaObjectContent.objects.select_subclasses().get(media_object__id=media_object.id)
-		media_object_content_type = media_object_content.__class__.__name__
-	except MediaObjectContent.DoesNotExist:
-		media_object_content = None
-		media_object_content_type = None
-
-	data = {
-		'event': media_object.event,
-		'media_object': media_object,
-		'media_object_content': media_object_content,
-		'media_object_content_type': media_object_content_type,
-	}
-
-	return render(request, 'media_object/detail.html', data)
 
 def list(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
@@ -107,6 +86,29 @@ def list(request, event_id):
 	return render(request, 'media_object/list.html', data)
 
 
+def detail(request, event_id, media_object_id):
+	media_object = get_object_or_404(MediaObject, id=media_object_id)
+
+	if media_object.event.id != int(event_id):
+		raise SuspiciousOperation
+
+	try:
+		media_object_content = MediaObjectContent.objects.select_subclasses().get(media_object__id=media_object.id)
+		media_object_content_type = media_object_content.__class__.__name__
+	except MediaObjectContent.DoesNotExist:
+		media_object_content = None
+		media_object_content_type = None
+
+	data = {
+		'event': media_object.event,
+		'media_object': media_object,
+		'media_object_content': media_object_content,
+		'media_object_content_type': media_object_content_type,
+	}
+
+	return render(request, 'media_object/detail.html', data)
+
+
 @login_required
 def add(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
@@ -135,7 +137,7 @@ def add_csv(request, event_id):
 
 		if form.is_valid():
 			dataReader = csv.reader(request.FILES['csv_file'], delimiter=';')
-			
+
 			media_objects = []
 
 			for row in dataReader:
@@ -150,7 +152,7 @@ def add_csv(request, event_id):
 				media_objects.append(media_object)
 
 			messages.success(request, 'Imported %d new media objects' % len(media_objects))
-			return redirect(list, event_id=event.id)	
+			return redirect(list, event_id=event.id)
 	else:
 		form = AddMediaObjectCSVForm()
 
@@ -190,13 +192,12 @@ def add_youtube(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 	video_id = None
 
-
 	if request.method == 'POST':
 		media_object_form = AddMediaObjectForm(request.POST, instance=MediaObject())
 		youtube_form = AddYoutubeVideoForm(request.POST, instance=YoutubeVideo())
 		ResponseObjectFormSet = modelformset_factory(
-			ResponseObject, 
-			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			ResponseObject,
+			exclude=('id', 'event', 'media_object', 'reply_to'),
 			# Shouldn't be necessary in this coder's humble opinion
 			extra=len([k for k in request.POST.keys() if 'response_object' in k]),
 			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
@@ -205,7 +206,7 @@ def add_youtube(request, event_id):
 			request.POST,
 			queryset=ResponseObject.objects.none(),
 			prefix='response_object')
-		
+
 		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
 			media_object = media_object_form.save()
 
@@ -229,15 +230,15 @@ def add_youtube(request, event_id):
 
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
-			
+
 			media_object, youtube_video, comments = __youtube_id_to_objects(video_id, event)
-		
+
 		media_object_form = AddMediaObjectForm(instance=media_object)
 		youtube_form = AddYoutubeVideoForm(instance=youtube_video)
 
 		ResponseObjectFormSet = modelformset_factory(
-			ResponseObject, 
-			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			ResponseObject,
+			exclude=('id', 'event', 'media_object', 'reply_to'),
 			# Shouldn't be necessary in this coder's humble opinion
 			extra=len(comments),
 			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
@@ -257,6 +258,7 @@ def add_youtube(request, event_id):
 
 	return render(request, 'management/add_youtube.html', data)
 
+
 @login_required
 def delete(request, event_id, media_object_id):
 	media_object = get_object_or_404(MediaObject, id=media_object_id)
@@ -265,7 +267,7 @@ def delete(request, event_id, media_object_id):
 	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
 		media_object.delete()
 		messages.success(request, 'Deleted media object "%s"' % media_object.name)
-		return redirect(list, event_id=event.id)	
+		return redirect(list, event_id=event.id)
 
 	data = {
 		'event': event,
