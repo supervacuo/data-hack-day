@@ -110,6 +110,29 @@ def detail(request, event_id, media_object_id):
 
 
 @login_required
+def edit(request, event_id, media_object_id):
+	raise NotImplementedError
+
+
+@login_required
+def delete(request, event_id, media_object_id):
+	media_object = get_object_or_404(MediaObject, id=media_object_id)
+	event = media_object.event
+
+	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
+		media_object.delete()
+		messages.success(request, 'Deleted media object "%s"' % media_object.name)
+		return redirect(list, event_id=event.id)
+
+	data = {
+		'event': event,
+		'media_object': media_object,
+	}
+
+	return render(request, 'media_object/delete.html', data)
+
+
+@login_required
 def add(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 
@@ -162,11 +185,6 @@ def add_csv(request, event_id):
 	}
 
 	return render(request, 'media_object/add_csv.html', data)
-
-
-@login_required
-def edit(request, event_id, media_object_id):
-	raise NotImplementedError
 
 
 @login_required
@@ -257,21 +275,3 @@ def add_youtube(request, event_id):
 	}
 
 	return render(request, 'management/add_youtube.html', data)
-
-
-@login_required
-def delete(request, event_id, media_object_id):
-	media_object = get_object_or_404(MediaObject, id=media_object_id)
-	event = media_object.event
-
-	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
-		media_object.delete()
-		messages.success(request, 'Deleted media object "%s"' % media_object.name)
-		return redirect(list, event_id=event.id)
-
-	data = {
-		'event': event,
-		'media_object': media_object,
-	}
-
-	return render(request, 'media_object/delete.html', data)
