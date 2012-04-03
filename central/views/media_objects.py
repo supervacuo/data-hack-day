@@ -41,7 +41,7 @@ def __youtube_id_to_objects(youtube_id, event):
 
 	for comment in comment_feed.entry:
 		response_object = ResponseObject()
-		response_object.title = comment.title.text
+		response_object.name = comment.title.text
 		response_object.text = comment.content.text
 		response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 		response_object.author = comment.author[0].name.text
