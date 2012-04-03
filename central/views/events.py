@@ -25,7 +25,7 @@ def detail(request, event_id):
 		'event': event
 	}
 
-	return render(request, 'event/detail.html', data)
+	return render(request, 'events/detail.html', data)
 
 
 def list(request):
@@ -35,7 +35,7 @@ def list(request):
 		'events': events,
 	}
 
-	return render(request, 'event/list.html', data)
+	return render(request, 'events/list.html', data)
 
 
 @login_required
@@ -53,7 +53,7 @@ def add(request):
 		'form': form,
 	}
 
-	return render(request, 'event/add.html', data)
+	return render(request, 'events/add.html', data)
 
 
 def timeline(request, event_id):
@@ -63,4 +63,4 @@ def timeline(request, event_id):
 		'event': event,
 	}
 
-	return render(request, 'event/timeline.html', data)
+	return render(request, 'events/timeline.html', data)

@@ -99,7 +99,7 @@ def list(request, event_id):
 		'event': event,
 		'media_objects': media_objects
 	}
-	return render(request, 'media_object/list.html', data)
+	return render(request, 'media_objects/list.html', data)
 
 
 def detail(request, event_id, media_object_id):
@@ -122,7 +122,7 @@ def detail(request, event_id, media_object_id):
 		'media_object_content_type': media_object_content_type,
 	}
 
-	return render(request, 'media_object/detail.html', data)
+	return render(request, 'media_objects/detail.html', data)
 
 
 @login_required
@@ -145,7 +145,7 @@ def delete(request, event_id, media_object_id):
 		'media_object': media_object,
 	}
 
-	return render(request, 'media_object/delete.html', data)
+	return render(request, 'media_objects/delete.html', data)
 
 
 @login_required
@@ -166,7 +166,7 @@ def add(request, event_id):
 		'form': form,
 	}
 
-	return render(request, 'media_object/add.html', data)
+	return render(request, 'media_objects/add.html', data)
 
 
 @login_required
@@ -202,7 +202,7 @@ def add_csv(request, event_id):
 		'form': form,
 	}
 
-	return render(request, 'media_object/add_csv.html', data)
+	return render(request, 'media_objects/add_csv.html', data)
 
 
 @login_required
@@ -216,7 +216,7 @@ def add_youtube_by_id(request, event_id):
 		'form': form,
 	}
 
-	return render(request, 'media_object/add_youtube_by_id.html', data)
+	return render(request, 'media_objects/add_youtube_by_id.html', data)
 
 
 @login_required
@@ -294,4 +294,4 @@ def add_youtube(request, event_id):
 		'video_id': video_id,
 	}
 
-	return render(request, 'media_object/add_youtube.html', data)
+	return render(request, 'media_objects/add_youtube.html', data)
