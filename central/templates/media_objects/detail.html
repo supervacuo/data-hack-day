@@ -34,7 +34,7 @@
 					<td>{{ media_object_content_type }}</td>
 				</tr>
 				<tr>
-					<td>Comments</td>
+					<td><a href='{% url response_list_by_media event_id=event.id,media_object_id=media_object.id %}'>Responses</a></td>
 					<td>{{ media_object.responses.count }}</td>
 				</tr>
 			</tbody>
