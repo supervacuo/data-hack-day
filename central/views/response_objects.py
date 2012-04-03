@@ -24,6 +24,7 @@ class ResponseObjectMixin(object):
 class ResponseObjectListView(MediaObjectMixin, EventMixin, ListView):
 	context_object_name = 'response_objects'
 	template_name = 'response_objects/list.html'
+	paginate_by = 20
 
 	def get_queryset(self):
 		try:

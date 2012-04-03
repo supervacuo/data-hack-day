@@ -1,4 +1,4 @@
-{% extends 'events/base.html' %}
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
 {% block breadcrumb_items %}
 <li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
@@ -27,7 +27,7 @@
 
 {% for response_object in response_objects %}
 <div class='row'>
-	<div class='span8'>
+	<div class='span6'>
 		<p>
 			<strong>
 				<a href='{% url response_detail event_id=event.id response_object_id=response_object.id %}'>
@@ -40,11 +40,14 @@
 			<span class='label label-info'>{{ response_object.author }}</span>, <em>{{ response_object.datetime }}</em>
 		</p>
 	</div>
-	<div class='span4'>
+	<div class='span2'>
 		<a class='btn btn-mini btn-info' href='{% url response_edit event_id=event.id response_object_id=response_object.id %}'>Edit</a>
 		<a class='btn btn-mini btn-danger' href='{% url response_delete event_id=event.id response_object_id=response_object.id %}'>Delete</a>
 	</div>
 </div>
 {% endfor %}
+<div class="row">
+	{{ page_obj|pagination }}
+</div>
 
 {% endblock content %}
