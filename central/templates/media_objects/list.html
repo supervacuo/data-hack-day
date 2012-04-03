@@ -1,4 +1,4 @@
-{% extends 'event/base.html' %}
+{% extends 'events/base.html' %}
 
 {% block breadcrumb_items %}
 <li><span class="divider">/</span> <a href='{% url central.views.events.detail event_id=event.id %}'>{{ event.name }}</a></li>
