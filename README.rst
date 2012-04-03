@@ -10,7 +10,7 @@ Overview
 media data, developed during the `OccupyData Hackfest NYC`_, March 23-24
 2012. It currently handles YouTube videos (using the `python-gdata YouTube API`_\ )
 and manually-entered or CSV-uploaded online news articles, and draws a timeline
-using MIT's `SIMILE Timeline widget`_.
+using `d3.js`_.
 
 Installing
 ----------------------------------
@@ -33,22 +33,24 @@ Features
 * Create "Media objects" corresponding to online news stories, either by manual
   entry or CSV upload.
 * Manage (edit and delete) "Media objects".
-* Display all "Media objects" associated with an event using MIT's `SIMILE
-  Timeline widget`_\ .
 * Bugs and incompleteness (see below)
 
 To-do
 ----------------------------------
 
 * Find a better name for the project...
-* Custom visualisation using `d3.js`_.
-* Import tweets as "Responses", and add them to the visualisation.
+* New hierarchical layout for `d3.js`_, and navigation.
+* Show tweets on the timeline visualisation.
+* Work out the best way for users to bulk-import Twitter data.
+* Use Topsy.com API more cleverly; deal with paginated responses and large
+  result sets.
 * Implement proper user profile and registration system.
 * Date picker widget (tried; failed due to `Django bug`_).
 * CSV upload error handling and documentation.
 * Non-stupid tree implementation using `django-mptt`_.
 * Tests.
-* Clean up code, transition to class-based views.
+* Clean up code, complete transition to class-based views, implement
+  `django-guardian`_ carefully in all relevant views.
 * *etc.* *etc.*
 * Fix known bugs (see below).
 
@@ -84,5 +86,6 @@ above) or e-mail (above; slightly lower down), please.
 .. _OccupyData Hackfest NYC: http://occupydatanyc.wordpress.com/
 .. _d3.js: http://mbostock.github.com/d3/
 .. _django-mptt: https://github.com/django-mptt/django-mptt
+.. _django-guardian: https://github.com/lukaszb/django-guardian
 .. _bootstrap: http://twitter.github.com/bootstrap/
 .. _Django bug: https://code.djangoproject.com/ticket/17981
