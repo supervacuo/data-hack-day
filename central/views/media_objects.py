@@ -16,6 +16,22 @@ from central.models import Event, MediaObject, YoutubeVideo, MediaObjectContent,
 from central.forms import AddMediaObjectForm, AddYoutubeIDForm, AddYoutubeVideoForm, AddMediaObjectCSVForm
 
 
+class MediaObjectMixin(object):
+	def dispatch(self, *args, **kwargs):
+		try:
+			self.media_object = get_object_or_404(MediaObject, id=kwargs['media_object_id'])
+		except KeyError:
+			self.media_object = None
+
+		return super(MediaObjectMixin, self).dispatch(*args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(MediaObjectMixin, self).get_context_data(**kwargs)
+		context['media_object'] = self.media_object
+
+		return context
+
+
 def __youtube_id_to_objects(youtube_id, event):
 	yt_service = YouTubeService()
 

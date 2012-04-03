@@ -2,7 +2,7 @@ from django import forms
 
 #from central.widgets import BootstrapSplitDateTimeWidget
 
-from central.models import Event, MediaObject, YoutubeVideo
+from central.models import Event, MediaObject, YoutubeVideo, ResponseObject
 
 
 class AddEventForm(forms.ModelForm):
@@ -45,7 +45,13 @@ class AddYoutubeVideoForm(forms.ModelForm):
 class AddYoutubeIDForm(forms.Form):
 	youtube_id = forms.CharField()
 
+
 class AddMediaObjectCSVForm(forms.Form):
 	csv_file = forms.FileField(label='CSV file', 
 		help_text=u'''Select a CSV(comma-separated value) file from your computer to
 			upload new media objects.''')
+
+	class AddResponseObjectForm(forms.ModelForm):
+		class Meta:
+			model = ResponseObject
+		exclude = ('event',)

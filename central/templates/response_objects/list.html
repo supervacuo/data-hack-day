@@ -1,0 +1,50 @@
+{% extends 'event/base.html' %}
+
+{% block breadcrumb_items %}
+<li><span class="divider">/</span> <a href='{% url central.views.events.detail event_id=event.id %}'>{{ event.name }}</a></li>
+{% if media_object %}<li><span class="divider">/</span> <a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}'>{{ media_object.name }}</a></li>{% endif %}
+<li><span class="divider">/</span> All Response Objects</li>{% endblock %}
+
+{% block title %}{{ block.super }}: All Response Objects for {{ media_object.name }}{% endblock title %}
+
+{% block content %}
+<h1>
+	{% if media_object %}
+	<a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	</a> All Responses for "{{ media_object.name }}"</h1>
+	{% else %}
+	<a href='{% url central.views.events.detail event_id=event.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	</a> All Responses for "{{ event.name }}"</h1>
+	{% endif %}
+
+<p>Showing {{ response_objects.count|pluralize:"all " }}{{ response_objects.count }} response object{{ response_objects.count|pluralize }}.</p>
+
+<p>
+	<a class='btn' href='{% url central.views.response_objects.add event_id=event.id %}'>Add manually <i class='icon-plus-sign'></i></a>
+</p>
+
+{% for response_object in response_objects %}
+<div class='row'>
+	<div class='span8'>
+		<p>
+			<strong>
+				<a href='{% url response_detail event_id=event.id response_object_id=response_object.id %}'>
+					{# FIXME: better representation if name unavailable #}
+					{{ response_object.name|default:response_object }}
+				</a>
+			</strong>
+		</p>
+		<p>
+			<span class='label label-info'>{{ response_object.author }}</span>, <em>{{ response_object.datetime }}</em>
+		</p>
+	</div>
+	<div class='span4'>
+		<a class='btn btn-mini btn-info' href='{% url central.views.response_objects.edit event_id=event.id response_object_id=response_object.id %}'>Edit</a>
+		<a class='btn btn-mini btn-danger' href='{% url central.views.response_objects.delete event_id=event.id response_object_id=media_object.id %}'>Delete</a>
+	</div>
+</div>
+{% endfor %}
+
+{% endblock content %}
