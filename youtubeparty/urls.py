@@ -35,7 +35,7 @@ urlpatterns = patterns('',
 	url(r'^events/(?P<event_id>\d*)/response_objects/(?P<response_object_id>\d*)/delete/$', ResponseObjectDeleteView.as_view(), name='response_delete'),
 	# Add ResponseObjects
 	url(r'^events/(?P<event_id>\d*)/response_objects/add/$', ResponseObjectCreateView.as_view(), name='response_add'),
-	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/add/$', ResponseObjectCreateView.as_view(), name='response_add_by_media_object'),
+	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/response_objects/add/$', ResponseObjectCreateView.as_view(), name='response_add_by_media_object'),
 
 	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
