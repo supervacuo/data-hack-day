@@ -2,7 +2,7 @@ from django import forms
 
 #from central.widgets import BootstrapSplitDateTimeWidget
 
-from central.models import Event, MediaObject, YoutubeVideo, ResponseObject
+from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
 
 
 class AddEventForm(forms.ModelForm):
@@ -36,13 +36,13 @@ class AddMediaObjectForm(forms.ModelForm):
 		model = MediaObject
 
 
-class AddYoutubeVideoForm(forms.ModelForm):
+class AddYouTubeVideoForm(forms.ModelForm):
 	class Meta:
-		model = YoutubeVideo
+		model = YouTubeVideo
 		exclude = ('media_object','event')
 
 
-class AddYoutubeIDForm(forms.Form):
+class AddYouTubeIDForm(forms.Form):
 	youtube_id = forms.CharField()
 
 

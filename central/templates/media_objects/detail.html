@@ -1,12 +1,12 @@
-{% extends 'media_objects/base.html' %}{% load bootstrap_toolkit %}
+{% extends 'media_objects/base.html' %}{% load bootstrap_toolkit %}{% load util %}
 
 {% block title %}{{ block.super }}: Media Object {{ media_object.name }}{% endblock title %}
 
 {% block content %}<h1><a href='{% url central.views.media_objects.list event_id=event.id %}' class='btn btn-mini'><i class='icon-chevron-left'></i></a> {{ media_object.name }}</h1>
 
 <div class='row'>
-	{% if media_object_content.thumbnail %}<div class='span4'>
-		<a href='{{ media_object.url }}'><img src='{{ media_object_content.thumbnail }}' style='width: 300px;' alt='{{ media_object.name }}'/></a>
+	{% if media_object.thumbnail %}<div class='span4'>
+		<a href='{{ media_object.url }}'><img src='{{ media_object.thumbnail }}' style='width: 300px;' alt='{{ media_object.name }}'/></a>
 	</div>{% endif %}
 	<div class='span8'>
 		<table class='table table-bordered table-striped'>
@@ -31,7 +31,7 @@
 				</tr>
 				<tr>
 					<td>Type</td>
-					<td>{{ media_object_content_type }}</td>
+					<td>{{ media_object|class_name }}</td>
 				</tr>
 				<tr>
 					<td><a href='{% url response_list_by_media event_id=event.id,media_object_id=media_object.id %}'>Responses</a></td>

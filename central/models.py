@@ -41,23 +41,11 @@ class ResponseObjectManager(models.Manager):
 		return response_objects
 
 
-class MediaObjectContent(models.Model):
-	media_object = models.OneToOneField('MediaObject', related_name='media_object_content')
-
-	objects = InheritanceManager()
 
 	def __get_score(self):
 		raise NotImplementedError
 
 	score = property(__get_score)
-
-
-class YoutubeVideo(MediaObjectContent):
-	views = models.IntegerField()
-	ratings = models.IntegerField()
-	average_rating = models.FloatField()
-	favorited = models.IntegerField()
-	thumbnail = models.URLField()
 
 
 class Event(models.Model):
@@ -88,6 +76,8 @@ class MediaObject(models.Model):
 	url = models.URLField()
 	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
 
+	objects = InheritanceManager()
+
 	def __unicode__(self):
 		return self.name
 
@@ -107,6 +97,14 @@ class MediaObject(models.Model):
 
 	class Meta:
 		ordering = ['event', '-datetime']
+
+
+class YouTubeVideo(MediaObject):
+	views = models.IntegerField()
+	ratings = models.IntegerField()
+	average_rating = models.FloatField()
+	favorited = models.IntegerField()
+	thumbnail = models.URLField()
 
 
 class ResponseObject(models.Model):

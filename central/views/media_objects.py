@@ -8,12 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import SuspiciousOperation
 from django.utils import simplejson
 from django import forms
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib import messages
 from django.forms.models import modelformset_factory
 
-from central.models import Event, MediaObject, YoutubeVideo, MediaObjectContent, ResponseObject
-from central.forms import AddMediaObjectForm, AddYoutubeIDForm, AddYoutubeVideoForm, AddMediaObjectCSVForm
+from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
+from central.forms import AddMediaObjectForm, AddYouTubeIDForm, AddYouTubeVideoForm, AddMediaObjectCSVForm
 
 
 class MediaObjectMixin(object):
@@ -40,14 +40,12 @@ def __youtube_id_to_objects(youtube_id, event):
 
 	video = yt_service.GetYouTubeVideoEntry(video_id=youtube_id)
 
-	media_object = MediaObject()
-	media_object.author = video.author[0].name.text
-	media_object.event = event
-	media_object.name = video.title.text
-	media_object.url = video.GetHtmlLink().href
-	media_object.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
-
-	youtube_video = YoutubeVideo()
+	youtube_video = YouTubeVideo()
+	youtube_video.author = video.author[0].name.text
+	youtube_video.event = event
+	youtube_video.name = video.title.text
+	youtube_video.url = video.GetHtmlLink().href
+	youtube_video.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 	youtube_video.views = video.statistics.view_count
 	youtube_video.ratings = video.rating.num_raters
 	youtube_video.average_rating = video.rating.average
@@ -65,12 +63,12 @@ def __youtube_id_to_objects(youtube_id, event):
 		response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 		response_object.author = comment.author[0].name.text
 		response_object.event = event
-		response_object.media_object = media_object
+		response_object.media_object = youtube_video
 		response_object.source_type = 'yt'
 
 		comment_list.append(response_object)
 
-	return media_object, youtube_video, comment_list
+	return youtube_video, comment_list
 
 
 def list(request, event_id):
@@ -106,23 +104,17 @@ def list(request, event_id):
 
 
 def detail(request, event_id, media_object_id):
-	media_object = get_object_or_404(MediaObject, id=media_object_id)
+	try:
+		media_object = MediaObject.objects.get_subclass(id=media_object_id)
+	except MediaObject.DoesNotExist():
+		raise Http404
 
 	if media_object.event.id != int(event_id):
 		raise SuspiciousOperation
 
-	try:
-		media_object_content = MediaObjectContent.objects.select_subclasses().get(media_object__id=media_object.id)
-		media_object_content_type = media_object_content.__class__.__name__
-	except MediaObjectContent.DoesNotExist:
-		media_object_content = None
-		media_object_content_type = None
-
 	data = {
 		'event': media_object.event,
 		'media_object': media_object,
-		'media_object_content': media_object_content,
-		'media_object_content_type': media_object_content_type,
 	}
 
 	return render(request, 'media_objects/detail.html', data)
@@ -212,7 +204,7 @@ def add_csv(request, event_id):
 def add_youtube_by_id(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 
-	form = AddYoutubeIDForm()
+	form = AddYouTubeIDForm()
 
 	data = {
 		'event': event,
@@ -232,8 +224,7 @@ def add_youtube(request, event_id):
 	video_id = None
 
 	if request.method == 'POST':
-		media_object_form = AddMediaObjectForm(request.POST, instance=MediaObject())
-		youtube_form = AddYoutubeVideoForm(request.POST, instance=YoutubeVideo())
+		youtube_form = AddYouTubeVideoForm(request.POST, instance=YouTubeVideo())
 		ResponseObjectFormSet = modelformset_factory(
 			ResponseObject,
 			exclude=('id', 'event', 'media_object', 'reply_to'),
@@ -246,36 +237,30 @@ def add_youtube(request, event_id):
 			queryset=ResponseObject.objects.none(),
 			prefix='response_object')
 
-		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
-			media_object = media_object_form.save(commit=False)
-			media_object.event = event
-			media_object.save()
-
+		if youtube_form.is_valid() and youtube_comments_formset.is_valid():
 			youtube_object = youtube_form.save(commit=False)
-			youtube_object.media_object = media_object
+			youtube_object.event = event
 			youtube_object.save()
 			youtube_comments = youtube_comments_formset.save(commit=False)
 
 			for youtube_comment in youtube_comments:
 				youtube_comment.event = event
-				youtube_comment.media_object = media_object
+				youtube_comment.media_object = youtube_object
 				youtube_comment.save()
-			messages.success(request, 'Added new YouTube video "%s"' % media_object.name)
+			messages.success(request, 'Added new YouTube video "%s"' % youtube_object.name)
 
-			return redirect(media_object)
+			return redirect(youtube_object)
 	else:
-		id_form = AddYoutubeIDForm(request.GET or None)
+		id_form = AddYouTubeIDForm(request.GET or None)
 
-		media_object = None
 		youtube_video = None
 
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
 
-			media_object, youtube_video, comments = __youtube_id_to_objects(video_id, event)
+			youtube_video, comments = __youtube_id_to_objects(video_id, event)
 
-		media_object_form = AddMediaObjectForm(instance=media_object)
-		youtube_form = AddYoutubeVideoForm(instance=youtube_video)
+		youtube_form = AddYouTubeVideoForm(instance=youtube_video)
 
 		ResponseObjectFormSet = modelformset_factory(
 			ResponseObject,
@@ -291,7 +276,6 @@ def add_youtube(request, event_id):
 
 	data = {
 		'event': event,
-		'media_object_form': media_object_form,
 		'youtube_form': youtube_form,
 		'youtube_comments_formset': youtube_comments_formset,
 		'video_id': video_id,
