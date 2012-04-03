@@ -16,6 +16,22 @@ from central.models import Event, MediaObject, YoutubeVideo, MediaObjectContent,
 from central.forms import AddMediaObjectForm, AddYoutubeIDForm, AddYoutubeVideoForm, AddMediaObjectCSVForm
 
 
+class MediaObjectMixin(object):
+	def dispatch(self, *args, **kwargs):
+		try:
+			self.media_object = get_object_or_404(MediaObject, id=kwargs['media_object_id'])
+		except KeyError:
+			self.media_object = None
+
+		return super(MediaObjectMixin, self).dispatch(*args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(MediaObjectMixin, self).get_context_data(**kwargs)
+		context['media_object'] = self.media_object
+
+		return context
+
+
 def __youtube_id_to_objects(youtube_id, event):
 	yt_service = YouTubeService()
 
@@ -26,7 +42,7 @@ def __youtube_id_to_objects(youtube_id, event):
 	media_object.event = event
 	media_object.name = video.title.text
 	media_object.url = video.GetHtmlLink().href
-	media_object.datetime = datetime.strptime(video.published.text,'%Y-%m-%dT%H:%M:%S.%fZ')
+	media_object.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 	youtube_video = YoutubeVideo()
 	youtube_video.views = video.statistics.view_count
@@ -41,9 +57,9 @@ def __youtube_id_to_objects(youtube_id, event):
 
 	for comment in comment_feed.entry:
 		response_object = ResponseObject()
-		response_object.title = comment.title.text
+		response_object.name = comment.title.text
 		response_object.text = comment.content.text
-		response_object.datetime = datetime.strptime(comment.published.text,'%Y-%m-%dT%H:%M:%S.%fZ')
+		response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
 		response_object.author = comment.author[0].name.text
 		response_object.event = event
 		response_object.media_object = media_object
@@ -52,6 +68,39 @@ def __youtube_id_to_objects(youtube_id, event):
 		comment_list.append(response_object)
 
 	return media_object, youtube_video, comment_list
+
+
+def list(request, event_id):
+	event = get_object_or_404(Event, id=event_id)
+
+	media_objects = MediaObject.objects.filter(event=event)
+
+	if request.is_ajax() or 'ajax' in request.GET:
+		media_objects_list = []
+
+		for media_object in media_objects:
+			media_objects_list.append({
+				'datetime': media_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+				'link': media_object.url,
+				'type': media_object.type_name,
+				'responses': [{
+						'datetime': r.datetime.isoformat(),
+						'author': r.author,
+					} for r in media_object.responses.all()],
+				'title': media_object.name})
+
+		json_obj = {
+			"events": media_objects_list
+		}
+
+		return HttpResponse(simplejson.dumps(json_obj), content_type='application/json; charset=utf-8')
+
+	data = {
+		'event': event,
+		'media_objects': media_objects
+	}
+	return render(request, 'media_object/list.html', data)
+
 
 def detail(request, event_id, media_object_id):
 	media_object = get_object_or_404(MediaObject, id=media_object_id)
@@ -75,31 +124,28 @@ def detail(request, event_id, media_object_id):
 
 	return render(request, 'media_object/detail.html', data)
 
-def list(request, event_id):
-	event = get_object_or_404(Event, id=event_id)
 
-	media_objects = MediaObject.objects.filter(event=event)
+@login_required
+def edit(request, event_id, media_object_id):
+	raise NotImplementedError
 
-	if request.is_ajax() or 'ajax' in request.GET:
-		media_objects_list = []
 
-		for media_object in media_objects:
-			media_objects_list.append({
-				'start': media_object.datetime.isoformat(),
-				'link': media_object.url,
-				'title': media_object.name})
+@login_required
+def delete(request, event_id, media_object_id):
+	media_object = get_object_or_404(MediaObject, id=media_object_id)
+	event = media_object.event
 
-		json_obj = {
-			"events": media_objects_list
-		}
-
-		return HttpResponse(simplejson.dumps(json_obj), content_type='application/json; charset=utf-8')
+	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
+		media_object.delete()
+		messages.success(request, 'Deleted media object "%s"' % media_object.name)
+		return redirect(list, event_id=event.id)
 
 	data = {
 		'event': event,
-		'media_objects': media_objects
+		'media_object': media_object,
 	}
-	return render(request, 'media_object/list.html', data)
+
+	return render(request, 'media_object/delete.html', data)
 
 
 @login_required
@@ -109,7 +155,9 @@ def add(request, event_id):
 	form = AddMediaObjectForm(request.POST or None)
 
 	if form.is_valid():
-		media_object = form.save()
+		media_object = form.save(commit=False)
+		media_object.event = event
+		media_object.save()
 
 		return redirect(media_object)
 
@@ -130,7 +178,7 @@ def add_csv(request, event_id):
 
 		if form.is_valid():
 			dataReader = csv.reader(request.FILES['csv_file'], delimiter=';')
-			
+
 			media_objects = []
 
 			for row in dataReader:
@@ -145,7 +193,7 @@ def add_csv(request, event_id):
 				media_objects.append(media_object)
 
 			messages.success(request, 'Imported %d new media objects' % len(media_objects))
-			return redirect(list, event_id=event.id)	
+			return redirect(list, event_id=event.id)
 	else:
 		form = AddMediaObjectCSVForm()
 
@@ -155,11 +203,6 @@ def add_csv(request, event_id):
 	}
 
 	return render(request, 'media_object/add_csv.html', data)
-
-
-@login_required
-def edit(request, event_id, media_object_id):
-	raise NotImplementedError
 
 
 @login_required
@@ -185,13 +228,12 @@ def add_youtube(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 	video_id = None
 
-
 	if request.method == 'POST':
 		media_object_form = AddMediaObjectForm(request.POST, instance=MediaObject())
 		youtube_form = AddYoutubeVideoForm(request.POST, instance=YoutubeVideo())
 		ResponseObjectFormSet = modelformset_factory(
-			ResponseObject, 
-			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			ResponseObject,
+			exclude=('id', 'event', 'media_object', 'reply_to'),
 			# Shouldn't be necessary in this coder's humble opinion
 			extra=len([k for k in request.POST.keys() if 'response_object' in k]),
 			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
@@ -200,9 +242,11 @@ def add_youtube(request, event_id):
 			request.POST,
 			queryset=ResponseObject.objects.none(),
 			prefix='response_object')
-		
+
 		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
-			media_object = media_object_form.save()
+			media_object = media_object_form.save(commit=False)
+			media_object.event = event
+			media_object.save()
 
 			youtube_object = youtube_form.save(commit=False)
 			youtube_object.media_object = media_object
@@ -224,15 +268,15 @@ def add_youtube(request, event_id):
 
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
-			
+
 			media_object, youtube_video, comments = __youtube_id_to_objects(video_id, event)
-		
+
 		media_object_form = AddMediaObjectForm(instance=media_object)
 		youtube_form = AddYoutubeVideoForm(instance=youtube_video)
 
 		ResponseObjectFormSet = modelformset_factory(
-			ResponseObject, 
-			exclude=('id', 'event', 'media_object', 'reply_to'), 
+			ResponseObject,
+			exclude=('id', 'event', 'media_object', 'reply_to'),
 			# Shouldn't be necessary in this coder's humble opinion
 			extra=len(comments),
 			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
@@ -251,20 +295,3 @@ def add_youtube(request, event_id):
 	}
 
 	return render(request, 'management/add_youtube.html', data)
-
-@login_required
-def delete(request, event_id, media_object_id):
-	media_object = get_object_or_404(MediaObject, id=media_object_id)
-	event = media_object.event
-
-	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
-		media_object.delete()
-		messages.success(request, 'Deleted media object "%s"' % media_object.name)
-		return redirect(list, event_id=event.id)	
-
-	data = {
-		'event': event,
-		'media_object': media_object,
-	}
-
-	return render(request, 'media_object/delete.html', data)

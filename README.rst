@@ -48,6 +48,7 @@ To-do
 * CSV upload error handling and documentation.
 * Non-stupid tree implementation using `django-mptt`_.
 * Tests.
+* Clean up code, transition to class-based views.
 * *etc.* *etc.*
 * Fix known bugs (see below).
 

@@ -5,6 +5,19 @@ from central.forms import AddEventForm
 from central.models import Event
 
 
+class EventMixin(object):
+	def dispatch(self, *args, **kwargs):
+		self.event = get_object_or_404(Event, id=kwargs['event_id'])
+
+		return super(EventMixin, self).dispatch(*args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(EventMixin, self).get_context_data(**kwargs)
+		context['event'] = self.event
+
+		return context
+
+
 def detail(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 

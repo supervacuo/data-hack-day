@@ -1,0 +1,50 @@
+{% extends 'response_objects/base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Response Object {{ response_object.name|default:response_object }}{% endblock title %}
+
+{% block content %}
+<h1>
+	{% if media_object %}
+	<a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	{% else %}
+	<a href='{% url central.views.events.detail event_id=event.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	{% endif %}
+	</a> {{ response_object.name|default:response_object }}</h1>
+
+<div class='row'>
+	<div class='span8'>
+		<table class='table table-bordered table-striped'>
+			<thead>
+				<tr>
+					<th>Property</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Source</td>
+					<td><a href='{{ response_object.url }}'>{{ response_object.url }}</a></td>
+				</tr>
+				<tr>
+					<td>Author</td>
+					<td>{{ response_object.author }}</td>
+				</tr>
+				<tr>
+					<td>Date/time</td>
+					<td>{{ response_object.datetime }}</td>
+				</tr>
+				<tr>
+					<td>Type</td>
+					<td>{{ response_object.source_type }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class='span8 btn-group'>
+		<a class='btn btn-info' href='{% url central.views.media_objects.edit event_id=event.id media_object_id=media_object.id %}'>Edit <i class='icon-pencil icon-white'></i></a>
+		<a class='btn btn-danger' href='{% url central.views.media_objects.delete event_id=event.id media_object_id=media_object.id %}'>Delete <i class='icon-remove-sign icon-white'></i></a>
+</div>
+
+{% endblock content %}
