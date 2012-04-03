@@ -9,6 +9,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.utils import simplejson
 from django import forms
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.forms.models import modelformset_factory
 
@@ -17,13 +18,18 @@ from central.forms import AddMediaObjectForm, AddYoutubeIDForm, AddYoutubeVideoF
 
 
 class MediaObjectMixin(object):
-	def dispatch(self, *args, **kwargs):
+	def dispatch(self, request, *args, **kwargs):
 		try:
 			self.media_object = get_object_or_404(MediaObject, id=kwargs['media_object_id'])
+			if not request.user.has_perm('central.view_media_object', self.media_object):
+				raise PermissionDenied
 		except KeyError:
+			# User has requested a view that *might* accept media_object_id, but one
+			# has not been provided -- this means we don't need to check permissions
+			# (as they'll be handled by other components of this view)
 			self.media_object = None
 
-		return super(MediaObjectMixin, self).dispatch(*args, **kwargs)
+		return super(MediaObjectMixin, self).dispatch(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super(MediaObjectMixin, self).get_context_data(**kwargs)

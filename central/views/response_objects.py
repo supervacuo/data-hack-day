@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView
+from django.core.exceptions import PermissionDenied
 
 from central.models import Event, ResponseObject
 from central.views.events import EventMixin
@@ -7,11 +8,12 @@ from central.views.media_objects import MediaObjectMixin
 
 
 class ResponseObjectMixin(object):
-	def dispatch(self, *args, **kwargs):
-		self.response_object = get_object_or_404(ResponseObject,
-				id=kwargs['response_object_id'])
+	def dispatch(self, request, *args, **kwargs):
+		self.response_object = get_object_or_404(ResponseObject, id=kwargs['response_object_id'])
+		if not request.user.has_perm('central.view_response_object', self.media_object):
+			raise PermissionDenied
 
-		return super(ResponseObjectMixin, self).dispatch(*args, **kwargs)
+		return super(ResponseObjectMixin, self).dispatch(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super(ResponseObjectMixin, self).get_context_data(**kwargs)

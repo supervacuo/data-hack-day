@@ -72,6 +72,11 @@ class Event(models.Model):
 	def get_absolute_url(self):
 		return u'/events/%d/' % self.id
 
+	class Meta:
+		permissions = (
+			('view_event', 'Can view events'),
+		)
+
 
 class MediaObject(models.Model):
 	datetime = models.DateTimeField(verbose_name=u'Date/time')

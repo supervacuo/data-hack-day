@@ -69,6 +69,7 @@ INSTALLED_APPS = (
 	'south',
 	'bootstrap_toolkit',
 	'django.contrib.admin',
+	'guardian',
 )
 
 LOGGING = {
@@ -94,6 +95,14 @@ LOGGING = {
 		},
 	}
 }
+
+AUTHENTICATION_BACKENDS = (
+	'django.contrib.auth.backends.ModelBackend',
+	'guardian.backends.ObjectPermissionBackend',
+)
+
+ANONYMOUS_USER_ID = -1
+GUARDIAN_RAISE_403 = True
 
 try:
 	from local_settings import *
