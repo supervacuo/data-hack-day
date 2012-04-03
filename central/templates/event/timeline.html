@@ -6,47 +6,77 @@
 <li><span class="divider">/</span> Timeline</li>{% endblock %}
 
 {% block javascript %}{{ block.super }}
-<script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>
+<script type='text/javascript' src='{{ STATIC_URL }}js/jquery.tipsy.js'></script>
+<link href='{{ STATIC_URL }}css/tipsy.css' rel='stylesheet' type='text/css' />
+<script type='text/javascript' src='https://github.com/mbostock/d3/raw/v2.8.1/d3.v2.js'></script>
 <script type='text/javascript'>
-	var tl;
-	function onLoad() {
-		var eventSource = new Timeline.DefaultEventSource();
-		var bandInfos = [
-		 Timeline.createBandInfo({
-				 eventSource:    eventSource,
-				 date:           "{{ event.start_datetime.isoformat }}",
-				 width:          "70%", 
-				 intervalUnit:   Timeline.DateTime.HOUR, 
-				 intervalPixels: 100
-		 }),
-		 Timeline.createBandInfo({
-				 eventSource:    eventSource,
-				 date:           "{{ event.start_datetime.isoformat }}",
-				 width:          "30%", 
-				 intervalUnit:   Timeline.DateTime.DAY, 
-				 intervalPixels: 200
-		 })
-		];
-		bandInfos[1].syncWith = 0;
-		bandInfos[1].highlight = true;
-
-				
-		tl = Timeline.create(document.getElementById("timeline"), bandInfos);
-		Timeline.loadJSON("/events/{{ event.id }}/media_objects/?ajax", function(json, url) { eventSource.loadJSON(json, url); });
-	}
-
-	var resizeTimerID = null;
-	function onResize() {
-		if (resizeTimerID == null) {
-			resizeTimerID = window.setTimeout(function() {
-			resizeTimerID = null;
-			tl.layout();
-			}, 500);
-		}
-	}
-	
 	$(document).ready(function(){
-		onLoad();
+		$.getJSON('/events/{{ event.id }}/media_objects/', function(data) {
+			var padding = 20;
+			var width = 860;
+			var height = 300;
+
+			var vis = d3.select('#timeline')
+				.append('svg:svg')
+				.attr('width', width + padding * 2)
+				.attr('height', height + padding * 2);
+			var format = d3.time.format('%Y-%m-%d %H:%M:%S');
+			var x = d3.time.scale().domain([
+				new Date(2011, 10, 15, 20, 00),
+				new Date(2011, 10, 15, 22, 00)]).range([padding, width+padding]);
+				//format.parse('{{ event.start_datetime|date:"Y-m-d H:i:s" }}'),
+				//format.parse('{{ event.end_datetime|date:"Y-m-d H:i:s" }}')]).range([0, 500]);
+			var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
+
+			vis.selectAll('.xTicks').
+				data(x.ticks(d3.time.minutes, 20)).
+				enter().
+				append('svg:line').
+				attr('x1', x).
+				attr('y1', padding).
+				attr('x2', x).
+				attr('y2', height + padding - 10).
+				attr('stroke', 'lightgrey').
+				attr('class', 'yTicks');
+
+			vis.selectAll('text.xAxis').
+				data(x.ticks(d3.time.minutes, 20)).
+				enter().
+				append('svg:text').
+				text(function(date_tick) {
+					return d3.time.format('%H:%M')(date_tick);
+				}).
+				attr('x', x).
+				attr('y', height + padding).
+				attr('text-anchor', 'middle').
+				attr('fill', 'black');
+
+			vis.selectAll('rect').
+				data(data.events).
+				enter().
+				append('svg:rect').
+				attr('x', function(datum) { 
+					return x(format.parse(datum.datetime)); 
+				}).
+				attr('y', function(datum) { return y(1); }).
+				attr('height', 10).
+				attr('width', 10).
+				attr('fill', function(datum) { 
+					return (datum.type == 'YoutubeVideo') ? '#ffdd55' : '#808080';
+				}).
+				attr('stroke', 'black');
+
+			$('svg rect').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+				delayOut: 500,
+				fade: true,
+				title: function() {
+					var data = this.__data__;
+					return d3.time.format('%H:%M')(format.parse(data.datetime)) + ': ' + data.title;
+				}
+      });
+		});
 	});
 </script>{% endblock javascript %}
 
