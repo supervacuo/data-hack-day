@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 
-from central.models import Event, ResponseObject
+from central.models import ResponseObject
 from central.views.events import EventMixin
 from central.views.media_objects import MediaObjectMixin
 
@@ -47,16 +49,38 @@ class ResponseObjectCreateView(MediaObjectMixin, EventMixin, CreateView):
 		kwargs.update({'instance': ResponseObject(event=self.event, media_object=self.media_object)})
 		return kwargs
 
+	def dispatch(self, request, *args, **kwargs):
+		# FIXME this should not be a "global" permission
+		if not request.user.has_perm('central.create_responseobject'):
+			raise PermissionDenied
 
-def edit(request, event_id, response_object_id, media_object_id=None):
-	raise NotImplementedError
+		return super(ResponseObjectCreateView, self).dispatch(request, *args, **kwargs)
 
 
-def delete(request, event_id, response_object_id, media_object_id=None):
-	raise NotImplementedError
+class ResponseObjectUpdateView(ResponseObjectMixin, MediaObjectMixin, EventMixin, UpdateView):
+	model = ResponseObject
+	template_name = 'response_objects/edit.html'
+
+	def get_object(self):
+		if not self.request.user.has_perm('central.change_responseobject', self.response_object):
+			raise PermissionDenied
+		return self.response_object
 
 
-def add(request, event_id, media_object_id=None):
-	event = get_object_or_404(Event, id=event_id)
+class ResponseObjectDeleteView(ResponseObjectMixin, MediaObjectMixin, EventMixin, DeleteView):
+	model = ResponseObject
+	template_name = 'response_objects/delete.html'
 
-	raise NotImplementedError
+	def get_object(self):
+		return self.response_object
+
+	def get_success_url(self):
+		if self.media_object:
+			return reverse('response_list_by_media', kwargs={
+				'event_id': self.event.id,
+				'media_object_id': self.media_object.id,
+			})
+		else:
+			return reverse('response_list_by_event', kwargs={
+				'event_id': self.event.id,
+			})

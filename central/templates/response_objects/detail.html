@@ -43,8 +43,8 @@
 		</table>
 	</div>
 	<div class='span8 btn-group'>
-		<a class='btn btn-info' href='{% url central.views.media_objects.edit event_id=event.id media_object_id=media_object.id %}'>Edit <i class='icon-pencil icon-white'></i></a>
-		<a class='btn btn-danger' href='{% url central.views.media_objects.delete event_id=event.id media_object_id=media_object.id %}'>Delete <i class='icon-remove-sign icon-white'></i></a>
+		<a class='btn btn-info' href='{% url response_edit event_id=event.id response_object_id=response_object.id %}'>Edit <i class='icon-pencil icon-white'></i></a>
+		<a class='btn btn-danger' href='{% url response_delete event_id=event.id response_object_id=response_object.id %}'>Delete <i class='icon-remove-sign icon-white'></i></a>
 </div>
 
 {% endblock content %}

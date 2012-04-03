@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: delete {{ response_object.name|default:response_object }}{% endblock title %}
+
+{% block content %}<h1>Delete "{{ response_object.name|default:response_object }}"</h1>
+
+<div>
+	<p>
+		Are you sure you want to delete "{{ response_object.name|default:response_object }}"?
+	</p>
+	<form action='.' method='post'>
+		{% csrf_token %}
+		<button type='submit' class='btn btn-primary'>Delete <i class='icon-plus-sign icon-white'></i>
+	</form>
+</div>{% endblock content %}

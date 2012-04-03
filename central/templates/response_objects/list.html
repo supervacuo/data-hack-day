@@ -41,8 +41,8 @@
 		</p>
 	</div>
 	<div class='span4'>
-		<a class='btn btn-mini btn-info' href='{% url central.views.response_objects.edit event_id=event.id response_object_id=response_object.id %}'>Edit</a>
-		<a class='btn btn-mini btn-danger' href='{% url central.views.response_objects.delete event_id=event.id response_object_id=media_object.id %}'>Delete</a>
+		<a class='btn btn-mini btn-info' href='{% url response_edit event_id=event.id response_object_id=response_object.id %}'>Edit</a>
+		<a class='btn btn-mini btn-danger' href='{% url response_delete event_id=event.id response_object_id=response_object.id %}'>Delete</a>
 	</div>
 </div>
 {% endfor %}
