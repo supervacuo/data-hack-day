@@ -5,10 +5,10 @@
 {% block content %}
 <h1>
 	{% if media_object %}
-	<a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}' class='btn btn-mini'>
+	<a href='{% url response_list_by_media event_id=event.id,media_object_id=media_object.id %}' class='btn btn-mini'>
 		<i class='icon-chevron-left'></i>
 	{% else %}
-	<a href='{% url central.views.events.detail event_id=event.id %}' class='btn btn-mini'>
+	<a href='{% url response_list_by_event event_id=event.id %}' class='btn btn-mini'>
 		<i class='icon-chevron-left'></i>
 	{% endif %}
 	</a> {{ response_object.name|default:response_object }}</h1>
