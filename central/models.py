@@ -69,8 +69,9 @@ class Event(models.Model):
 		return u'%s (%s - %s)' % (self.name, self.start_datetime.strftime('%D %T'),
 				self.start_datetime.strftime('%D %T'))
 
+	@models.permalink
 	def get_absolute_url(self):
-		return u'/events/%d/' % self.id
+		return ('central.views.events.detail', (), {'event_id': self.id})
 
 	class Meta:
 		permissions = (
@@ -90,8 +91,12 @@ class MediaObject(models.Model):
 	def __unicode__(self):
 		return self.name
 
+	@models.permalink
 	def get_absolute_url(self):
-		return u'/events/%d/media_objects/%d/' % (self.event.id, self.id)
+		return ('central.views.media_objects.detail', (), {
+			'event_id': self.event.id,
+			'media_object_id': self.id,
+		})
 
 	def __type_name(self):
 		try:
@@ -123,6 +128,13 @@ class ResponseObject(models.Model):
 
 	def __unicode__(self):
 		return u'%s: %s by %s' % (self.source_type, self.datetime, self.author or 'unknown')
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('response_detail', (), {
+			'event_id': self.event.id,
+			'response_object_id': self.id,
+		})
 
 	class Meta:
 		ordering = ['event', '-datetime']
