@@ -9,7 +9,6 @@ from django.core.exceptions import SuspiciousOperation
 from django.utils import simplejson
 from django import forms
 from django.http import HttpResponse
-from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.forms.models import modelformset_factory
 
@@ -21,8 +20,6 @@ class MediaObjectMixin(object):
 	def dispatch(self, request, *args, **kwargs):
 		try:
 			self.media_object = get_object_or_404(MediaObject, id=kwargs['media_object_id'])
-			if not request.user.has_perm('central.view_media_object', self.media_object):
-				raise PermissionDenied
 		except KeyError:
 			# User has requested a view that *might* accept media_object_id, but one
 			# has not been provided -- this means we don't need to check permissions
