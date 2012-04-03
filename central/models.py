@@ -100,6 +100,8 @@ class YouTubeVideo(MediaObject):
 	thumbnail = models.URLField()
 	video_id = models.CharField(max_length=11)
 
+
+
 	class Meta:
 		verbose_name = 'youtube video'
 
@@ -133,5 +135,8 @@ class ResponseObject(models.Model):
 
 	class Meta:
 		ordering = ['event', '-datetime']
+		# Hopefully enough here to prevent major duplicates. Obviously the resulting
+		# exception should be caught by views.
+		unique_together = (('event', 'datetime', 'text', 'source_type'),)
 
 tagging.register(MediaObject)
