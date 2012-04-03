@@ -23,7 +23,9 @@
 			<strong><a href='{% url central.views.media_objects.detail event_id=event.id media_object_id=media_object.id %}'>{{ media_object.name }}</a></strong>
 		</p>
 		<p>
-			<span class='label label-info'>{{ media_object.author }}</span>, <em>{{ media_object.datetime }}</em>
+			<span class='label label-info'> {{ media_object.author }}</span>, 
+			<em>{{ media_object.datetime }}</em>
+			<a href='{% url response_list_by_media event_id=event.id,media_object_id=media_object.id %}'>{{ media_object.responses.count }} response{{ media_object.responses.count|pluralize }}</a>
 		</p>
 	</div>
 	<div class='span4'>
