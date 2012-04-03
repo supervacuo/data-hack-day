@@ -1,8 +1,5 @@
 import csv
 
-from datetime import datetime
-from gdata.youtube.service import YouTubeService
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import SuspiciousOperation
@@ -33,27 +30,6 @@ class MediaObjectMixin(object):
 		context['media_object'] = self.media_object
 
 		return context
-
-
-def __youtube_id_to_object(youtube_id, event):
-	yt_service = YouTubeService()
-
-	video = yt_service.GetYouTubeVideoEntry(video_id=youtube_id)
-
-	youtube_video = YouTubeVideo()
-	youtube_video.author = video.author[0].name.text
-	youtube_video.event = event
-	youtube_video.name = video.title.text
-	youtube_video.url = video.GetHtmlLink().href
-	youtube_video.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
-	youtube_video.views = video.statistics.view_count
-	youtube_video.ratings = video.rating.num_raters
-	youtube_video.average_rating = video.rating.average
-	youtube_video.favorited = video.statistics.favorite_count
-	youtube_video.thumbnail = video.media.thumbnail[0].url
-	youtube_video.video_id = youtube_id
-
-	return youtube_video
 
 
 def list(request, event_id):
@@ -243,7 +219,8 @@ def add_youtube(request, event_id):
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
 
-			youtube_video = __youtube_id_to_object(video_id, event)
+			youtube_video = YouTubeVideo.objects.create_from_id(video_id)
+			youtube_video.event = event
 			comments = youtube_video.fetch_comments()
 
 		youtube_form = AddYouTubeVideoForm(instance=youtube_video)

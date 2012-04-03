@@ -55,6 +55,26 @@ class MediaObject(models.Model):
 		ordering = ['event', '-datetime']
 
 
+class YouTubeVideoManager(models.Manager):
+	def create_from_id(self, video_id):
+		yt_service = YouTubeService()
+
+		video = yt_service.GetYouTubeVideoEntry(video_id=video_id)
+
+		youtube_video = YouTubeVideo()
+		youtube_video.author = video.author[0].name.text
+		youtube_video.name = video.title.text
+		youtube_video.url = video.GetHtmlLink().href
+		youtube_video.datetime = datetime.strptime(video.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
+		youtube_video.views = video.statistics.view_count
+		youtube_video.ratings = video.rating.num_raters
+		youtube_video.average_rating = video.rating.average
+		youtube_video.favorited = video.statistics.favorite_count
+		youtube_video.thumbnail = video.media.thumbnail[0].url
+		youtube_video.video_id = video_id
+
+		return youtube_video
+
 class YouTubeVideo(MediaObject):
 	views = models.IntegerField()
 	ratings = models.IntegerField()
@@ -62,6 +82,8 @@ class YouTubeVideo(MediaObject):
 	favorited = models.IntegerField()
 	thumbnail = models.URLField()
 	video_id = models.CharField(max_length=11)
+
+	objects = YouTubeVideoManager()
 
 	def fetch_comments(self):
 		yt_service = YouTubeService()
