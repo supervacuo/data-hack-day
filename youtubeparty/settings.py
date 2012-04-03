@@ -54,7 +54,7 @@ ROOT_URLCONF = 'youtubeparty.urls'
 WSGI_APPLICATION = 'youtubeparty.wsgi.application'
 
 TEMPLATE_DIRS = (
-	os.path.join(FILEROOT, 'templates'),
+	os.path.join(FILEROOT, '..', 'templates'),
 )
 
 INSTALLED_APPS = (

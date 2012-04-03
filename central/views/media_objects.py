@@ -216,7 +216,7 @@ def add_youtube_by_id(request, event_id):
 		'form': form,
 	}
 
-	return render(request, 'management/add_youtube_by_id.html', data)
+	return render(request, 'media_object/add_youtube_by_id.html', data)
 
 
 @login_required
@@ -294,4 +294,4 @@ def add_youtube(request, event_id):
 		'video_id': video_id,
 	}
 
-	return render(request, 'management/add_youtube.html', data)
+	return render(request, 'media_object/add_youtube.html', data)
