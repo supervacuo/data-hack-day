@@ -98,6 +98,7 @@ class YouTubeVideo(MediaObject):
 	average_rating = models.FloatField()
 	favorited = models.IntegerField()
 	thumbnail = models.URLField()
+	video_id = models.CharField(max_length=11)
 
 	class Meta:
 		verbose_name = 'youtube video'
