@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 
 from central.forms import AddEventForm
 from central.models import Event
@@ -36,6 +36,13 @@ class EventListView(ListView):
 	template_name = 'events/list.html'
 	model = Event
 
+
+class EventUpdateView(EventMixin, UpdateView):
+	template_name = 'events/edit.html'
+	model = Event
+
+	def get_object(self):
+		return self.event
 
 @login_required
 def add(request):

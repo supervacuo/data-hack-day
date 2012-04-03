@@ -1,0 +1,26 @@
+{% extends 'base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Edit Event{% endblock title %}
+
+{% block javascript %}{{ block.super }}
+
+{# class incorrectly applied; see Django #17981 #}
+<script type='text/javascript'>
+	$(document).ready(function(){
+		$('#id_start_datetime_1, #id_end_datetime_1').removeClass('datepicker').editClass('input-mini');
+	});
+</script>{% endblock %}
+
+{% block extra_head %}
+		{{ form.media }}
+{% endblock %}
+
+{% block content %}<h1>Edit Event</h1>
+
+<div>
+	<form action='.' method='post'>
+		{% csrf_token %}
+		{{ form|as_bootstrap }}
+	 <input type="submit" value="Submit" class="btn btn-primary">
+	</form>
+</div>{% endblock content %}

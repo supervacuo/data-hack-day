@@ -9,10 +9,14 @@ from central.views.response_objects import *
 urlpatterns = patterns('',
 	url(r'^$', 'central.views.index'),
 
+	# Display Events
 	url(r'^events/$', EventListView.as_view(), name='event_list'),
-	url(r'^events/add/$', 'central.views.events.add'),
 	url(r'^events/(?P<event_id>\d*)/$', EventDetailView.as_view(), name='event_detail'),
 	url(r'^events/(?P<event_id>\d*)/timeline/$', 'central.views.events.timeline'),
+	# Modify Events
+	url(r'^events/(?P<event_id>\d*)/edit/$', EventUpdateView.as_view(), name='event_update'),
+	# Add Events
+	url(r'^events/add/$', 'central.views.events.add'),
 	
 	# Display MediaObjects
 	url(r'^events/(?P<event_id>\d*)/media_objects/$', 'central.views.media_objects.list'),
