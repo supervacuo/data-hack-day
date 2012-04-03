@@ -74,7 +74,7 @@ def __youtube_id_to_objects(youtube_id, event):
 def list(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 
-	media_objects = MediaObject.objects.filter(event=event)
+	media_objects = MediaObject.objects.filter(event=event).select_subclasses()
 
 	if request.is_ajax() or 'ajax' in request.GET:
 		media_objects_list = []
@@ -83,7 +83,7 @@ def list(request, event_id):
 			media_objects_list.append({
 				'datetime': media_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
 				'link': media_object.url,
-				'type': media_object.type_name,
+				'type': media_object._meta.verbose_name,
 				'responses': [{
 						'datetime': r.datetime.isoformat(),
 						'author': r.author,

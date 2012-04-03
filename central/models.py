@@ -88,13 +88,6 @@ class MediaObject(models.Model):
 			'media_object_id': self.id,
 		})
 
-	def __type_name(self):
-		try:
-			return MediaObjectContent.objects.select_subclasses().get(media_object__id=self.id).__class__.__name__
-		except MediaObjectContent.DoesNotExist:
-			return None
-	type_name = property(__type_name)
-
 	class Meta:
 		ordering = ['event', '-datetime']
 
@@ -105,6 +98,9 @@ class YouTubeVideo(MediaObject):
 	average_rating = models.FloatField()
 	favorited = models.IntegerField()
 	thumbnail = models.URLField()
+
+	class Meta:
+		verbose_name = 'youtube video'
 
 
 class ResponseObject(models.Model):
