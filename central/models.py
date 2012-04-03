@@ -13,8 +13,8 @@ MAX_CHARFIELD_LENGTH = 512
 class ResponseObjectManager(models.Manager):
 	def tweets_for_youtube(self, youtube_id):
 		try:
-			youtube_video = YoutubeVideo.objects.get(media_object__url__contains=youtube_id)
-		except YoutubeVideo.DoesNotExist:
+			youtube_video = YouTubeVideo.objects.get(url__contains=youtube_id)
+		except YouTubeVideo.DoesNotExist:
 			# Should create the YoutubeVideo from ID here
 			pass
 
@@ -33,19 +33,12 @@ class ResponseObjectManager(models.Manager):
 			response_object.url = tweet.permalink_url
 			response_object.author = tweet.author.nick
 			response_object.source_type = 'tw'
-			response_object.media_object = youtube_video.media_object
-			response_object.event = youtube_video.media_object.event
+			response_object.media_object = youtube_video
+			response_object.event = youtube_video.event
 
 			response_objects.append(response_object)
 
 		return response_objects
-
-
-
-	def __get_score(self):
-		raise NotImplementedError
-
-	score = property(__get_score)
 
 
 class Event(models.Model):
