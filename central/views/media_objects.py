@@ -139,7 +139,9 @@ def add(request, event_id):
 	form = AddMediaObjectForm(request.POST or None)
 
 	if form.is_valid():
-		media_object = form.save()
+		media_object = form.save(commit=False)
+		media_object.event = event
+		media_object.save()
 
 		return redirect(media_object)
 
@@ -226,7 +228,9 @@ def add_youtube(request, event_id):
 			prefix='response_object')
 
 		if media_object_form.is_valid() and youtube_form.is_valid() and youtube_comments_formset.is_valid():
-			media_object = media_object_form.save()
+			media_object = media_object_form.save(commit=False)
+			media_object.event = event
+			media_object.save()
 
 			youtube_object = youtube_form.save(commit=False)
 			youtube_object.media_object = media_object

@@ -39,7 +39,7 @@ class AddMediaObjectForm(forms.ModelForm):
 class AddYoutubeVideoForm(forms.ModelForm):
 	class Meta:
 		model = YoutubeVideo
-		exclude = ('media_object',)
+		exclude = ('media_object','event')
 
 
 class AddYoutubeIDForm(forms.Form):
