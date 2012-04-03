@@ -11,7 +11,7 @@ class Migration(DataMigration):
 
         for youtube_video in youtube_videos:
             youtube_id = re.search(r'\&|\?v=(.{11})', youtube_video.url).group(1)
-            youtube_video.youtube_id = youtube_id
+            youtube_video.video_id = youtube_id
             youtube_video.save()
 
 

@@ -51,7 +51,7 @@ def __youtube_id_to_objects(youtube_id, event):
 	youtube_video.average_rating = video.rating.average
 	youtube_video.favorited = video.statistics.favorite_count
 	youtube_video.thumbnail = video.media.thumbnail[0].url
-	youtube_video.youtube_id = youtube_id
+	youtube_video.video_id = youtube_id
 
 	comment_feed = yt_service.GetYouTubeVideoCommentFeed(video_id=youtube_id)
 
