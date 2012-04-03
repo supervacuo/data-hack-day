@@ -1,17 +1,17 @@
 {% extends 'base.html' %}{% load bootstrap_toolkit %}
 
-{% block title %}{{ block.super }}: Add Response Object{% endblock title %}
+{% block title %}{{ block.super }}: Add Media Object to {{ event.name|title }}{% endblock title %}
 
 {% block extra_head %}
 		{{ form.media }}
-{% endblock %}
+{% endblock extra_head %}
 
-{% block content %}<h1>Add New Response Object</h1>
+{% block content %}<h1>Add New Response Object to "{{ event.name|title }}"</h1>
 
 <div>
 	<form action='.' method='post'>
 		{% csrf_token %}
 		{{ form|as_bootstrap }}
-	 <input type="submit" value="Submit" class="btn btn-primary">
+		<button type='submit' class='btn btn-primary'>Add media object <i class='icon-plus-sign icon-white'></i>
 	</form>
 </div>{% endblock content %}
