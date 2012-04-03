@@ -1,6 +1,7 @@
 import tagging
 import otter
 from datetime import datetime
+from gdata.youtube.service import YouTubeService
 
 from django.db import models
 from model_utils.managers import InheritanceManager
@@ -8,37 +9,6 @@ from model_utils.managers import InheritanceManager
 from youtubeparty import settings
 
 MAX_CHARFIELD_LENGTH = 512
-
-
-class ResponseObjectManager(models.Manager):
-	def tweets_for_youtube(self, youtube_id):
-		try:
-			youtube_video = YouTubeVideo.objects.get(url__contains=youtube_id)
-		except YouTubeVideo.DoesNotExist:
-			# Should create the YoutubeVideo from ID here
-			pass
-
-		r = otter.Resource('trackbacks',
-			api_key=settings.OTTER_API_KEY,
-			url='http://www.youtube.com/watch?v=%s' % youtube_id)
-
-		r()
-
-		response_objects = []
-
-		for tweet in r.response.list:
-			response_object = ResponseObject()
-			response_object.datetime = datetime.fromtimestamp(tweet.date)
-			response_object.text = tweet.content
-			response_object.url = tweet.permalink_url
-			response_object.author = tweet.author.nick
-			response_object.source_type = 'tw'
-			response_object.media_object = youtube_video
-			response_object.event = youtube_video.event
-
-			response_objects.append(response_object)
-
-		return response_objects
 
 
 class Event(models.Model):
@@ -93,7 +63,48 @@ class YouTubeVideo(MediaObject):
 	thumbnail = models.URLField()
 	video_id = models.CharField(max_length=11)
 
+	def fetch_comments(self):
+		yt_service = YouTubeService()
 
+		comment_feed = yt_service.GetYouTubeVideoCommentFeed(video_id=self.video_id)
+
+		comment_list = []
+
+		for comment in comment_feed.entry:
+			response_object = ResponseObject()
+			response_object.name = comment.title.text
+			response_object.text = comment.content.text
+			response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
+			response_object.author = comment.author[0].name.text
+			response_object.event = self.event
+			response_object.media_object = self
+			response_object.source_type = 'yt'
+
+			comment_list.append(response_object)
+		return comment_list
+
+	def fetch_tweets(self):
+		r = otter.Resource('trackbacks',
+			api_key=settings.OTTER_API_KEY,
+			url='http://www.youtube.com/watch?v=%s' % self.video_id)
+
+		r()
+
+		response_objects = []
+
+		for tweet in r.response.list:
+			response_object = ResponseObject()
+			response_object.datetime = datetime.fromtimestamp(tweet.date)
+			response_object.text = tweet.content
+			response_object.url = tweet.permalink_url
+			response_object.author = tweet.author.nick
+			response_object.source_type = 'tw'
+			response_object.media_object = self
+			response_object.event = self.event
+
+			response_objects.append(response_object)
+
+		return response_objects
 
 	class Meta:
 		verbose_name = 'youtube video'
@@ -114,7 +125,6 @@ class ResponseObject(models.Model):
 	media_object = models.ForeignKey(MediaObject, null=True, blank=True, related_name='responses')
 	reply_to = models.ForeignKey('self', null=True, blank=True, related_name='replies')
 	source_type = models.CharField(max_length=MAX_CHARFIELD_LENGTH, choices=SOURCES)
-	objects = ResponseObjectManager()
 
 	def __unicode__(self):
 		return u'%s: %s by %s' % (self.source_type, self.datetime, self.author or 'unknown')

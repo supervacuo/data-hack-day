@@ -35,7 +35,7 @@ class MediaObjectMixin(object):
 		return context
 
 
-def __youtube_id_to_objects(youtube_id, event):
+def __youtube_id_to_object(youtube_id, event):
 	yt_service = YouTubeService()
 
 	video = yt_service.GetYouTubeVideoEntry(video_id=youtube_id)
@@ -53,23 +53,7 @@ def __youtube_id_to_objects(youtube_id, event):
 	youtube_video.thumbnail = video.media.thumbnail[0].url
 	youtube_video.video_id = youtube_id
 
-	comment_feed = yt_service.GetYouTubeVideoCommentFeed(video_id=youtube_id)
-
-	comment_list = []
-
-	for comment in comment_feed.entry:
-		response_object = ResponseObject()
-		response_object.name = comment.title.text
-		response_object.text = comment.content.text
-		response_object.datetime = datetime.strptime(comment.published.text, '%Y-%m-%dT%H:%M:%S.%fZ')
-		response_object.author = comment.author[0].name.text
-		response_object.event = event
-		response_object.media_object = youtube_video
-		response_object.source_type = 'yt'
-
-		comment_list.append(response_object)
-
-	return youtube_video, comment_list
+	return youtube_video
 
 
 def list(request, event_id):
@@ -259,7 +243,8 @@ def add_youtube(request, event_id):
 		if id_form.is_valid():
 			video_id = id_form.cleaned_data['youtube_id']
 
-			youtube_video, comments = __youtube_id_to_objects(video_id, event)
+			youtube_video = __youtube_id_to_object(video_id, event)
+			comments = youtube_video.fetch_comments()
 
 		youtube_form = AddYouTubeVideoForm(instance=youtube_video)
 
