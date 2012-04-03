@@ -75,6 +75,7 @@ class YouTubeVideoManager(models.Manager):
 
 		return youtube_video
 
+
 class YouTubeVideo(MediaObject):
 	views = models.IntegerField()
 	ratings = models.IntegerField()
@@ -106,9 +107,24 @@ class YouTubeVideo(MediaObject):
 		return comment_list
 
 	def fetch_tweets(self):
-		r = otter.Resource('trackbacks',
-			api_key=settings.OTTER_API_KEY,
-			url='http://www.youtube.com/watch?v=%s' % self.video_id)
+		tweets = ResponseObject.objects.tweets_from_url('http://www.youtube.com/watch?v=%s' % self.video_id)
+
+		tweet_list = []
+
+		for tweet in tweets:
+			tweet.media_object = self
+			tweet.event = self.event
+			tweet_list.append(tweet)
+
+		return tweet_list
+
+	class Meta:
+		verbose_name = 'youtube video'
+
+
+class ResponseObjectManager(models.Manager):
+	def tweets_from_url(self, url):
+		r = otter.Resource('trackbacks', api_key=settings.OTTER_API_KEY, url=url)
 
 		r()
 
@@ -118,18 +134,16 @@ class YouTubeVideo(MediaObject):
 			response_object = ResponseObject()
 			response_object.datetime = datetime.fromtimestamp(tweet.date)
 			response_object.text = tweet.content
-			response_object.url = tweet.permalink_url
+			try:
+				response_object.url = tweet.permalink_url
+			except AttributeError:
+				pass
 			response_object.author = tweet.author.nick
 			response_object.source_type = 'tw'
-			response_object.media_object = self
-			response_object.event = self.event
 
 			response_objects.append(response_object)
 
 		return response_objects
-
-	class Meta:
-		verbose_name = 'youtube video'
 
 
 class ResponseObject(models.Model):
@@ -147,6 +161,8 @@ class ResponseObject(models.Model):
 	media_object = models.ForeignKey(MediaObject, null=True, blank=True, related_name='responses')
 	reply_to = models.ForeignKey('self', null=True, blank=True, related_name='replies')
 	source_type = models.CharField(max_length=MAX_CHARFIELD_LENGTH, choices=SOURCES)
+
+	objects = ResponseObjectManager()
 
 	def __unicode__(self):
 		return u'%s: %s by %s' % (self.source_type, self.datetime, self.author or 'unknown')
