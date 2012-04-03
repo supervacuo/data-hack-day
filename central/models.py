@@ -22,7 +22,7 @@ class Event(models.Model):
 
 	@models.permalink
 	def get_absolute_url(self):
-		return ('central.views.events.detail', (), {'event_id': self.id})
+		return ('event_detail', (), {'event_id': self.id})
 
 	class Meta:
 		permissions = (

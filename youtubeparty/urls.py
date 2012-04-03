@@ -3,14 +3,15 @@ from django.contrib import admin
 
 admin.autodiscover()
 
-from central.views.response_objects import* 
+from central.views.events import * 
+from central.views.response_objects import * 
 
 urlpatterns = patterns('',
 	url(r'^$', 'central.views.index'),
 
-	url(r'^events/$', 'central.views.events.list'),
+	url(r'^events/$', EventListView.as_view(), name='event_list'),
 	url(r'^events/add/$', 'central.views.events.add'),
-	url(r'^events/(?P<event_id>\d*)/$', 'central.views.events.detail'),
+	url(r'^events/(?P<event_id>\d*)/$', EventDetailView.as_view(), name='event_detail'),
 	url(r'^events/(?P<event_id>\d*)/timeline/$', 'central.views.events.timeline'),
 	
 	# Display MediaObjects

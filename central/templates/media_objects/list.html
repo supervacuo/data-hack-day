@@ -1,7 +1,7 @@
 {% extends 'events/base.html' %}
 
 {% block breadcrumb_items %}
-<li><span class="divider">/</span> <a href='{% url central.views.events.detail event_id=event.id %}'>{{ event.name }}</a></li>
+<li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
 <li><span class="divider">/</span> All Media Objects</li>{% endblock %}
 
 {% block title %}{{ block.super }}: All Media Objects for {{ media_object.name }}{% endblock title %}

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.views.generic import ListView, DetailView
 
 from central.forms import AddEventForm
 from central.models import Event
@@ -21,24 +22,19 @@ class EventMixin(object):
 		return context
 
 
-def detail(request, event_id):
-	event = get_object_or_404(Event, id=event_id)
+class EventDetailView(EventMixin, DetailView):
+	context_object_name = 'event'
+	template_name = 'events/detail.html'
+	model = Event
 
-	data = {
-		'event': event
-	}
-
-	return render(request, 'events/detail.html', data)
+	def get_object(self):
+		return self.event
 
 
-def list(request):
-	events = Event.objects.all()
-
-	data = {
-		'events': events,
-	}
-
-	return render(request, 'events/list.html', data)
+class EventListView(ListView):
+	context_object_name = 'events'
+	template_name = 'events/list.html'
+	model = Event
 
 
 @login_required

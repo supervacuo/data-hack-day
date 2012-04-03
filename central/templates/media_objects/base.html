@@ -1,5 +1,5 @@
 {% extends 'base.html' %}{% load bootstrap_toolkit %}
 
 {% block breadcrumb_items %}
-<li><span class="divider">/</span> <a href='{% url central.views.events.detail event_id=event.id %}'>{{ event.name }}</a></li>
+<li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
 <li><span class="divider">/</span> {{ media_object.name }}</li>{% endblock %}
