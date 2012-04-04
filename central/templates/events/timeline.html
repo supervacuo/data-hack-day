@@ -11,21 +11,22 @@
 <script type='text/javascript' src='https://github.com/mbostock/d3/raw/v2.8.1/d3.v2.js'></script>
 <script type='text/javascript'>
 	$(document).ready(function(){
-		$.getJSON('/events/{{ event.id }}/media_objects/', function(data) {
+		$.getJSON('/events/{{ event.id }}/media_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
 			var padding = 20;
 			var width = 860;
 			var height = 300;
+
+			var format = d3.time.format('%Y-%m-%d %H:%M:%S');
+
+			var start = format.parse('{{ start|date:"Y-m-d H:i:s" }}');
+			var end = format.parse('{{ end|date:"Y-m-d H:i:s" }}');
+			console.log(start);
 
 			var vis = d3.select('#timeline')
 				.append('svg:svg')
 				.attr('width', width + padding * 2)
 				.attr('height', height + padding * 2);
-			var format = d3.time.format('%Y-%m-%d %H:%M:%S');
-			var x = d3.time.scale().domain([
-				new Date(2011, 10, 15, 20, 00),
-				new Date(2011, 10, 15, 22, 00)]).range([padding, width+padding]);
-				//format.parse('{{ event.start_datetime|date:"Y-m-d H:i:s" }}'),
-				//format.parse('{{ event.end_datetime|date:"Y-m-d H:i:s" }}')]).range([0, 500]);
+			var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
 			var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
 
 			vis.selectAll('.xTicks').
@@ -52,7 +53,7 @@
 				attr('fill', 'black');
 
 			vis.selectAll('rect').
-				data(data.events).
+				data(data.media_objects).
 				enter().
 				append('svg:rect').
 				attr('x', function(datum) { 
@@ -63,6 +64,20 @@
 				attr('width', 10).
 				attr('fill', function(datum) { 
 					return (datum.type == 'youtube video') ? '#ffdd55' : '#808080';
+				}).
+				attr('stroke', 'black');
+
+			vis.selectAll('circle').
+				data(data.response_objects).
+				enter().
+				append('svg:circle').
+				attr('cx', function(datum) { 
+					return x(format.parse(datum.datetime)); 
+				}).
+				attr('cy', function(datum) { return y(Math.random() * 2); }).
+				attr('r', 3).
+				attr('fill', function(datum) { 
+					return (datum.source_type == 'tw') ? '#44CCF6' : '#808080';
 				}).
 				attr('stroke', 'black');
 

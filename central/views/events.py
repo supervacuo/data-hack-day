@@ -1,9 +1,11 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, UpdateView
 
-from central.forms import AddEventForm
+from central.forms import AddEventForm, DateRangeForm
 from central.models import Event
 
 
@@ -65,8 +67,20 @@ def add(request):
 def timeline(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 
+	date_range_form = DateRangeForm(request.GET)
+
+	if date_range_form.is_valid():
+		start = date_range_form.cleaned_data['start']
+		end = date_range_form.cleaned_data['end']
+	else:
+		start = event.start_datetime
+		end = start + timedelta(hours=2)
+
 	data = {
 		'event': event,
+		'start': start,
+		'end': end,
 	}
+
 
 	return render(request, 'events/timeline.html', data)

@@ -55,3 +55,8 @@ class AddMediaObjectCSVForm(forms.Form):
 		class Meta:
 			model = ResponseObject
 		exclude = ('event',)
+
+
+class DateRangeForm(forms.Form):
+	start = forms.DateTimeField()
+	end = forms.DateTimeField()

@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,7 @@ from django.contrib import messages
 from django.forms.models import modelformset_factory
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
-from central.forms import AddMediaObjectForm, AddYouTubeIDForm, AddYouTubeVideoForm, AddMediaObjectCSVForm
+from central.forms import AddMediaObjectForm, AddYouTubeIDForm, AddYouTubeVideoForm, AddMediaObjectCSVForm, DateRangeForm
 
 
 class MediaObjectMixin(object):
@@ -35,7 +36,22 @@ class MediaObjectMixin(object):
 def list(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
 
+	date_range_form = DateRangeForm(request.GET)
+
 	media_objects = MediaObject.objects.filter(event=event).select_subclasses()
+
+	if date_range_form.is_valid():
+		media_objects = media_objects.filter(
+			datetime__gte=date_range_form.cleaned_data['start']
+		).filter(
+			datetime__lte=date_range_form.cleaned_data['end']
+		)
+
+		response_objects = event.responses.filter(
+			datetime__gte=date_range_form.cleaned_data['start']
+		).filter(
+			datetime__lte=date_range_form.cleaned_data['end']
+		)
 
 	if request.is_ajax() or 'ajax' in request.GET:
 		media_objects_list = []
@@ -51,8 +67,17 @@ def list(request, event_id):
 					} for r in media_object.responses.all()],
 				'title': media_object.name})
 
+		response_objects_list = []
+
+		for response_object in response_objects:
+			response_objects_list.append({
+				'id': response_object.id,
+				'datetime': response_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+				'source_type': response_object.source_type})
+
 		json_obj = {
-			"events": media_objects_list
+			"media_objects": media_objects_list,
+			"response_objects": response_objects_list,
 		}
 
 		return HttpResponse(simplejson.dumps(json_obj), content_type='application/json; charset=utf-8')
