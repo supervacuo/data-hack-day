@@ -7,7 +7,7 @@ TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
 USE_I18N = False
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 SITE_ID = 1
 
