@@ -8,24 +8,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'MediaObjectContent'
-        db.create_table('central_mediaobjectcontent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('media_object', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['central.MediaObject'], unique=True)),
-        ))
-        db.send_create_signal('central', ['MediaObjectContent'])
-
-        # Adding model 'YoutubeVideo'
-        db.create_table('central_youtubevideo', (
-            ('mediaobjectcontent_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['central.MediaObjectContent'], unique=True, primary_key=True)),
-            ('views', self.gf('django.db.models.fields.IntegerField')()),
-            ('ratings', self.gf('django.db.models.fields.IntegerField')()),
-            ('average_rating', self.gf('django.db.models.fields.FloatField')()),
-            ('favorited', self.gf('django.db.models.fields.IntegerField')()),
-            ('thumbnail', self.gf('django.db.models.fields.URLField')(max_length=200)),
-        ))
-        db.send_create_signal('central', ['YoutubeVideo'])
-
         # Adding model 'Event'
         db.create_table('central_event', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -41,35 +23,54 @@ class Migration(SchemaMigration):
             ('datetime', self.gf('django.db.models.fields.DateTimeField')()),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=512)),
             ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['central.Event'])),
-            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['central.MediaObject'], null=True, blank=True)),
+            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='children', null=True, to=orm['central.MediaObject'])),
             ('url', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('author', self.gf('django.db.models.fields.CharField')(max_length=512)),
         ))
         db.send_create_signal('central', ['MediaObject'])
 
+        # Adding model 'YouTubeVideo'
+        db.create_table('central_youtubevideo', (
+            ('mediaobject_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['central.MediaObject'], unique=True, primary_key=True)),
+            ('views', self.gf('django.db.models.fields.IntegerField')()),
+            ('ratings', self.gf('django.db.models.fields.IntegerField')()),
+            ('average_rating', self.gf('django.db.models.fields.FloatField')()),
+            ('favorited', self.gf('django.db.models.fields.IntegerField')()),
+            ('thumbnail', self.gf('django.db.models.fields.URLField')(max_length=200)),
+            ('video_id', self.gf('django.db.models.fields.CharField')(max_length=11)),
+        ))
+        db.send_create_signal('central', ['YouTubeVideo'])
+
         # Adding model 'ResponseObject'
         db.create_table('central_responseobject', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('datetime', self.gf('django.db.models.fields.DateTimeField')()),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=512, null=True, blank=True)),
-            ('text', self.gf('django.db.models.fields.TextField')()),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=512, blank=True)),
+            ('text', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('url', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
-            ('author', self.gf('django.db.models.fields.CharField')(max_length=512)),
+            ('author', self.gf('django.db.models.fields.CharField')(max_length=512, blank=True)),
+            ('event', self.gf('django.db.models.fields.related.ForeignKey')(related_name='responses', to=orm['central.Event'])),
+            ('media_object', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='responses', null=True, to=orm['central.MediaObject'])),
+            ('reply_to', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='replies', null=True, to=orm['central.ResponseObject'])),
+            ('source_type', self.gf('django.db.models.fields.CharField')(max_length=512)),
         ))
         db.send_create_signal('central', ['ResponseObject'])
 
-    def backwards(self, orm):
-        # Deleting model 'MediaObjectContent'
-        db.delete_table('central_mediaobjectcontent')
+        # Adding unique constraint on 'ResponseObject', fields ['event', 'datetime', 'text', 'source_type']
+        db.create_unique('central_responseobject', ['event_id', 'datetime', 'text', 'source_type'])
 
-        # Deleting model 'YoutubeVideo'
-        db.delete_table('central_youtubevideo')
+    def backwards(self, orm):
+        # Removing unique constraint on 'ResponseObject', fields ['event', 'datetime', 'text', 'source_type']
+        db.delete_unique('central_responseobject', ['event_id', 'datetime', 'text', 'source_type'])
 
         # Deleting model 'Event'
         db.delete_table('central_event')
 
         # Deleting model 'MediaObject'
         db.delete_table('central_mediaobject')
+
+        # Deleting model 'YouTubeVideo'
+        db.delete_table('central_youtubevideo')
 
         # Deleting model 'ResponseObject'
         db.delete_table('central_responseobject')
@@ -83,36 +84,36 @@ class Migration(SchemaMigration):
             'start_datetime': ('django.db.models.fields.DateTimeField', [], {})
         },
         'central.mediaobject': {
-            'Meta': {'object_name': 'MediaObject'},
+            'Meta': {'ordering': "['event', '-datetime']", 'object_name': 'MediaObject'},
             'author': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
             'datetime': ('django.db.models.fields.DateTimeField', [], {}),
             'event': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['central.Event']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['central.MediaObject']", 'null': 'True', 'blank': 'True'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': "orm['central.MediaObject']"}),
             'url': ('django.db.models.fields.URLField', [], {'max_length': '200'})
         },
-        'central.mediaobjectcontent': {
-            'Meta': {'object_name': 'MediaObjectContent'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'media_object': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['central.MediaObject']", 'unique': 'True'})
-        },
         'central.responseobject': {
-            'Meta': {'object_name': 'ResponseObject'},
-            'author': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
+            'Meta': {'ordering': "['event', '-datetime']", 'unique_together': "(('event', 'datetime', 'text', 'source_type'),)", 'object_name': 'ResponseObject'},
+            'author': ('django.db.models.fields.CharField', [], {'max_length': '512', 'blank': 'True'}),
             'datetime': ('django.db.models.fields.DateTimeField', [], {}),
+            'event': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'responses'", 'to': "orm['central.Event']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
-            'text': ('django.db.models.fields.TextField', [], {}),
+            'media_object': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'responses'", 'null': 'True', 'to': "orm['central.MediaObject']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '512', 'blank': 'True'}),
+            'reply_to': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'replies'", 'null': 'True', 'to': "orm['central.ResponseObject']"}),
+            'source_type': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
+            'text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         },
         'central.youtubevideo': {
-            'Meta': {'object_name': 'YoutubeVideo', '_ormbases': ['central.MediaObjectContent']},
+            'Meta': {'ordering': "['event', '-datetime']", 'object_name': 'YouTubeVideo', '_ormbases': ['central.MediaObject']},
             'average_rating': ('django.db.models.fields.FloatField', [], {}),
             'favorited': ('django.db.models.fields.IntegerField', [], {}),
-            'mediaobjectcontent_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['central.MediaObjectContent']", 'unique': 'True', 'primary_key': 'True'}),
+            'mediaobject_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['central.MediaObject']", 'unique': 'True', 'primary_key': 'True'}),
             'ratings': ('django.db.models.fields.IntegerField', [], {}),
             'thumbnail': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
+            'video_id': ('django.db.models.fields.CharField', [], {'max_length': '11'}),
             'views': ('django.db.models.fields.IntegerField', [], {})
         }
     }
