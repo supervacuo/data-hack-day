@@ -1,8 +1,15 @@
-{% extends 'base.html' %}{% load bootstrap_toolkit %}
+{% extends 'response_objects/base.html' %}{% load bootstrap_toolkit %}
 
 {% block title %}{{ block.super }}: delete {{ response_object.name|default:response_object }}{% endblock title %}
 
-{% block content %}<h1>Delete "{{ response_object.name|default:response_object }}"</h1>
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> Delete</li>{% endblock %}
+
+{% block content %}<h1>
+	<a href='{% url response_detail event_id=event.id,response_object_id=response_object.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	</a> Delete "{{ response_object.name|default:response_object }}"</h1>
+</h1>
 
 <div>
 	<p>

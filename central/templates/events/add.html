@@ -9,11 +9,11 @@
 	$(document).ready(function(){
 		$('#id_start_datetime_1, #id_end_datetime_1').removeClass('datepicker').addClass('input-mini');
 	});
+	{{ form.media }}
 </script>{% endblock %}
 
-{% block extra_head %}
-		{{ form.media }}
-{% endblock %}
+{% block breadcrumb_items %}
+<li><span class="divider">/</span> Add event</li>{% endblock %}
 
 {% block content %}<h1>Add New Event</h1>
 

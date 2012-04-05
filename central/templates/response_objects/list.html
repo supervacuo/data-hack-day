@@ -1,9 +1,8 @@
 {% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
-{% block breadcrumb_items %}
-<li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
+{% block breadcrumb_items %}{{ block.super }}
 {% if media_object %}<li><span class="divider">/</span> <a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}'>{{ media_object.name }}</a></li>{% endif %}
-<li><span class="divider">/</span> All Response Objects</li>{% endblock %}
+<li><span class="divider">/</span> List Response Objects</li>{% endblock %}
 
 {% block title %}{{ block.super }}: All Response Objects for {{ media_object.name }}{% endblock title %}
 

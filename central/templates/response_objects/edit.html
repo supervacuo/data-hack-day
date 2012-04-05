@@ -1,12 +1,19 @@
-{% extends 'base.html' %}{% load bootstrap_toolkit %}
+{% extends 'response_objects/base.html' %}{% load bootstrap_toolkit %}
 
-{% block title %}{{ block.super }}: Add Media Object to {{ event.name|title }}{% endblock title %}
+{% block title %}{{ block.super }}: Edit Response Object{% endblock title %}
 
-{% block extra_head %}
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> Edit</li>{% endblock %}
+
+{% block javascript %}
 		{{ form.media }}
-{% endblock extra_head %}
+{% endblock javascript %}
 
-{% block content %}<h1>Add New Response Object to "{{ event.name|title }}"</h1>
+{% block content %}<h1>
+	<a href='{% url response_detail event_id=event.id,response_object_id=response_object.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	</a> Edit "{{ response_object.name|default:response_object }}"</h1>
+</h1>
 
 <div>
 	<form action='.' method='post'>

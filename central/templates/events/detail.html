@@ -1,6 +1,9 @@
-{% extends 'events/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}{{ block.super }}: {{ event.name|title }}{% endblock title %}
+
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> {{ event.name }}</li>{% endblock %}
 
 {% block content %}<h1>Event "{{ event.name }}"</h1>
 

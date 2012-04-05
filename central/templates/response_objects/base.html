@@ -3,4 +3,5 @@
 {% block breadcrumb_items %}
 <li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
 {% if media_object %}<li><span class="divider">/</span> <a href='{% url central.views.media_objects.detail event_id=event.id,media_object_id=media_object.id %}'>{{ media_object.name }}</a></li>{% endif %}
-<li><span class="divider">/</span> {{ response_object.name|default:response_object }}</li>{% endblock %}
+<li><span class="divider">/</span> <a href='{% url response_detail event_id=event.id,response_object_id=response_object.id %}'>{{ response_object.name }}</a></li>
+{% endblock %}

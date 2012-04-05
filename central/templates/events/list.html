@@ -2,6 +2,9 @@
 
 {% block title %}{{ block.super }}: Home{% endblock title %}
 
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> List events</li>{% endblock %}
+
 {% block content %}<h1>Occupy Timeline</h1>
 <ul>{% for event in events %}
 	<li><a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}{% load bootstrap_toolkit %}
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
 {% block title %}{{ block.super }}: Edit Event{% endblock title %}
 
@@ -14,6 +14,9 @@
 {% block extra_head %}
 		{{ form.media }}
 {% endblock %}
+
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> Edit</li>{% endblock %}
 
 {% block content %}<h1>Edit Event</h1>
 

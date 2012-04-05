@@ -1,16 +1,19 @@
 {% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
-{% block breadcrumb_items %}
-<li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
+{% block breadcrumb_items %}{{ block.super }}
 <li><span class="divider">/</span> Add YouTube video by ID</li>{% endblock %}
 
 {% block title %}{{ block.super }}: Add Youtube Video to {{ event.name|title }}{% endblock title %}
 
-{% block extra_head %}
+{% block javascript %}
 		{{ form.media }}
-{% endblock %}
+{% endblock javascript %}
 
-{% block content %}<h1>Add New Youtube Video to "{{ event.name|title }}"</h1>
+{% block content %}<h1>
+	<a href='{% url central.views.media_objects.list event_id=event.id %}' class='btn btn-mini'>
+		<i class='icon-chevron-left'></i>
+	</a> Add New Youtube Video to "{{ event.name|title }}"
+</h1>
 
 <div>
 	<form action='{% url central.views.media_objects.add_youtube event_id=event.id %}' method='get'>

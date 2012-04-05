@@ -1,12 +1,20 @@
-{% extends 'base.html' %}{% load bootstrap_toolkit %}
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
 {% block title %}{{ block.super }}: Add Media Object to {{ event.name|title }}{% endblock title %}
 
-{% block extra_head %}
+{% block javascript %}
 		{{ form.media }}
-{% endblock extra_head %}
+{% endblock javascript %}
 
-{% block content %}<h1>Add New Media Object to "{{ event.name|title }}"</h1>
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> Add Media Object</li>{% endblock %}
+
+{% block content %}<h1>
+	<a class='btn btn-mini' href='{% url central.views.media_objects.list event_id=event.id %}'>
+		<i class='icon-chevron-left'></i>
+	</a>
+	Add New Media Object to "{{ event.name|title }}"
+</h1>
 
 <div>
 	<form action='.' method='post'>

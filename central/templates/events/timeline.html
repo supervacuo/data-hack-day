@@ -1,8 +1,7 @@
 {% extends 'events/base.html' %}
 {% block title %}{{ block.super }}: timeline{% endblock title %}
 
-{% block breadcrumb_items %}
-<li><span class="divider">/</span> <a href='{% url event_detail event_id=event.id %}'>{{ event.name }}</a></li>
+{% block breadcrumb_items %}{{ block.super }}
 <li><span class="divider">/</span> Timeline</li>{% endblock %}
 
 {% block javascript %}{{ block.super }}
