@@ -34,7 +34,7 @@ class MediaObject(models.Model):
 	datetime = models.DateTimeField(verbose_name=u'Date/time')
 	name = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
 	# plus tags / keywords
-	event = models.ForeignKey(Event)
+	event = models.ForeignKey(Event, related_name='media_objects')
 	parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
 	url = models.URLField()
 	author = models.CharField(max_length=MAX_CHARFIELD_LENGTH)
