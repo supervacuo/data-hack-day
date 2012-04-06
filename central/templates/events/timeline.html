@@ -35,7 +35,7 @@
 				attr('x1', x).
 				attr('y1', padding).
 				attr('x2', x).
-				attr('y2', height + padding - 10).
+				attr('y2', height + padding).
 				attr('stroke', 'lightgrey').
 				attr('class', 'yTicks');
 
@@ -47,7 +47,7 @@
 					return d3.time.format('%H:%M')(date_tick);
 				}).
 				attr('x', x).
-				attr('y', height + padding).
+				attr('y', height + padding + 10).
 				attr('text-anchor', 'middle').
 				attr('fill', 'black');
 
@@ -74,11 +74,10 @@
 					return x(format.parse(datum.datetime)); 
 				}).
 				attr('cy', function(datum) { return y(Math.random() * 2); }).
-				attr('r', 3).
+				attr('r', 2).
 				attr('fill', function(datum) { 
 					return (datum.source_type == 'tw') ? '#44CCF6' : '#808080';
-				}).
-				attr('stroke', 'black');
+				});
 
 			$('svg rect').tipsy({ 
         gravity: 'w', 
