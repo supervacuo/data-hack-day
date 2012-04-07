@@ -66,6 +66,17 @@
 					return '#ffdd55';
 				}).
 				attr('stroke', 'black');
+
+			$('svg rect').tipsy({ 
+			gravity: 'w', 
+			html: true, 
+				delayOut: 500,
+				fade: true,
+				title: function() {
+					var data = this.__data__;
+					return d3.time.format('%H:%M')(format.parse(data.datetime)) + ': ' + data.title;
+				}
+			});
 		});
 
 		$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
@@ -82,16 +93,6 @@
 					return (datum.fields.source_type == 'tw') ? '#44CCF6' : '#808080';
 				});
 
-			$('svg rect').tipsy({ 
-			gravity: 'w', 
-			html: true, 
-				delayOut: 500,
-				fade: true,
-				title: function() {
-					var data = this.__data__;
-					return d3.time.format('%H:%M')(format.parse(data.datetime)) + ': ' + data.title;
-				}
-			});
 		});
 	});
 </script>{% endblock javascript %}
