@@ -41,6 +41,10 @@ class MediaObject(models.Model):
 
 	objects = InheritanceManager()
 
+	def _get_type(self):
+		return self._meta.verbose_name
+	source_type = property(_get_type)
+
 	def __unicode__(self):
 		return self.name
 
@@ -124,7 +128,14 @@ class YouTubeVideo(MediaObject):
 
 class ResponseObjectManager(models.Manager):
 	def tweets_from_url(self, url):
-		r = otter.Resource('trackbacks', api_key=settings.OTTER_API_KEY, url=url)
+		# FIXME pagination, and moving time window. 
+		# Max 100 results for now
+		r = otter.Resource('trackbacks', 
+			api_key=settings.OTTER_API_KEY, 
+			url=url,
+			perpage=100,  # Topsy doesn't allow more,
+			nohidden=0  # This apparently hides duplicate results (we'll throw them away anyway)
+			)
 
 		r()
 
