@@ -5,6 +5,7 @@ admin.autodiscover()
 
 from central.views.events import * 
 from central.views.response_objects import * 
+from central.views.media_objects import * 
 
 urlpatterns = patterns('',
 	url(r'^$', 'central.views.index'),
@@ -19,7 +20,7 @@ urlpatterns = patterns('',
 	url(r'^events/add/$', 'central.views.events.add'),
 	
 	# Display MediaObjects
-	url(r'^events/(?P<event_id>\d*)/media_objects/$', 'central.views.media_objects.list'),
+	url(r'^events/(?P<event_id>\d*)/media_objects/$', MediaObjectListView.as_view(), name='media_list'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/$', 'central.views.media_objects.detail'),
 	# Modify MediaObjects
 	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/edit/$', 'central.views.media_objects.edit'),

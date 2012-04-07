@@ -1,4 +1,4 @@
-{% extends 'events/base.html' %}
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 
 {% block breadcrumb_items %}{{ block.super }}
 <li><span class="divider">/</span> List Media Objects</li>{% endblock %}
@@ -33,5 +33,8 @@
 	</div>
 </div>
 {% endfor %}
+<div class="row">
+	{{ page_obj|pagination }}
+</div>
 
 {% endblock content %}

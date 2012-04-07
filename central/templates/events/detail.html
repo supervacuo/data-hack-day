@@ -13,7 +13,7 @@
 		<a href='{% url central.views.events.timeline event_id=event.id %}'>Timeline</a>
 	</li>
 	<li>
-		<a href='{% url central.views.media_objects.list event_id=event.id %}'>Media Objects</a>
+		<a href='{% url media_list event_id=event.id %}'>Media Objects</a>
 	</li>
 	<li>
 		<a href='{% url response_list_by_event event_id=event.id %}'>Response Objects</a>

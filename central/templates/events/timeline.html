@@ -10,85 +10,88 @@
 <script type='text/javascript' src='https://github.com/mbostock/d3/raw/v2.8.1/d3.v2.js'></script>
 <script type='text/javascript'>
 	$(document).ready(function(){
+		var padding = 20;
+		var width = 860;
+		var height = 300;
+
+		var format = d3.time.format('%Y-%m-%d %H:%M:%S');
+		var t_format = d3.time.format('%Y-%m-%dT%H:%M:%S');
+
+		var start = format.parse('{{ start|date:"Y-m-d H:i:s" }}');
+		var end = format.parse('{{ end|date:"Y-m-d H:i:s" }}');
+
+		var vis = d3.select('#timeline')
+			.append('svg:svg')
+			.attr('width', width + padding * 2)
+			.attr('height', height + padding * 2);
+		var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
+		var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
+
+		vis.selectAll('.xTicks').
+			data(x.ticks(d3.time.minutes, 20)).
+			enter().
+			append('svg:line').
+			attr('x1', x).
+			attr('y1', padding).
+			attr('x2', x).
+			attr('y2', height + padding).
+			attr('stroke', 'lightgrey').
+			attr('class', 'yTicks');
+
+		vis.selectAll('text.xAxis').
+			data(x.ticks(d3.time.minutes, 20)).
+			enter().
+			append('svg:text').
+			text(function(date_tick) {
+				return d3.time.format('%H:%M')(date_tick);
+			}).
+			attr('x', x).
+			attr('y', height + padding + 10).
+			attr('text-anchor', 'middle').
+			attr('fill', 'black');
+
 		$.getJSON('/events/{{ event.id }}/media_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
-			var padding = 20;
-			var width = 860;
-			var height = 300;
-
-			var format = d3.time.format('%Y-%m-%d %H:%M:%S');
-
-			var start = format.parse('{{ start|date:"Y-m-d H:i:s" }}');
-			var end = format.parse('{{ end|date:"Y-m-d H:i:s" }}');
-			console.log(start);
-
-			var vis = d3.select('#timeline')
-				.append('svg:svg')
-				.attr('width', width + padding * 2)
-				.attr('height', height + padding * 2);
-			var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
-			var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
-
-			vis.selectAll('.xTicks').
-				data(x.ticks(d3.time.minutes, 20)).
-				enter().
-				append('svg:line').
-				attr('x1', x).
-				attr('y1', padding).
-				attr('x2', x).
-				attr('y2', height + padding).
-				attr('stroke', 'lightgrey').
-				attr('class', 'yTicks');
-
-			vis.selectAll('text.xAxis').
-				data(x.ticks(d3.time.minutes, 20)).
-				enter().
-				append('svg:text').
-				text(function(date_tick) {
-					return d3.time.format('%H:%M')(date_tick);
-				}).
-				attr('x', x).
-				attr('y', height + padding + 10).
-				attr('text-anchor', 'middle').
-				attr('fill', 'black');
-
 			vis.selectAll('rect').
 				data(data.media_objects).
 				enter().
 				append('svg:rect').
 				attr('x', function(datum) { 
-					return x(format.parse(datum.datetime)); 
+					return x(t_format.parse(datum.fields.datetime)); 
 				}).
 				attr('y', function(datum) { return y(1); }).
 				attr('height', 10).
 				attr('width', 10).
 				attr('fill', function(datum) { 
-					return (datum.type == 'youtube video') ? '#ffdd55' : '#808080';
+					// return (datum.fields.type == 'youtube video') ? '#ffdd55' : '#808080';
+					return '#ffdd55';
 				}).
 				attr('stroke', 'black');
+		});
 
+		$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
 			vis.selectAll('circle').
 				data(data.response_objects).
 				enter().
 				append('svg:circle').
 				attr('cx', function(datum) { 
-					return x(format.parse(datum.datetime)); 
+					return x(t_format.parse(datum.fields.datetime)); 
 				}).
 				attr('cy', function(datum) { return y(Math.random() * 2); }).
 				attr('r', 2).
 				attr('fill', function(datum) { 
-					return (datum.source_type == 'tw') ? '#44CCF6' : '#808080';
+					return (datum.fields.source_type == 'tw') ? '#44CCF6' : '#808080';
 				});
 
 			$('svg rect').tipsy({ 
-        gravity: 'w', 
-        html: true, 
+			gravity: 'w', 
+			html: true, 
 				delayOut: 500,
 				fade: true,
 				title: function() {
 					var data = this.__data__;
 					return d3.time.format('%H:%M')(format.parse(data.datetime)) + ': ' + data.title;
 				}
-      });
+			});
 		});
 	});
 </script>{% endblock javascript %}

@@ -1,17 +1,20 @@
 import csv
 from datetime import datetime
 
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import SuspiciousOperation
-from django.utils import simplejson
-from django import forms
-from django.http import HttpResponse, Http404
 from django.contrib import messages
+from django.core.exceptions import SuspiciousOperation
+from django import forms
 from django.forms.models import modelformset_factory
+from django.http import HttpResponse, Http404
+from django.utils import simplejson
+from django.views.generic import ListView
+from django.shortcuts import render, redirect, get_object_or_404
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
 from central.forms import AddMediaObjectForm, AddYouTubeIDForm, AddYouTubeVideoForm, AddMediaObjectCSVForm, DateRangeForm
+from central.views import JSONResponseMixin
+from central.views.events import EventMixin
 
 
 class MediaObjectMixin(object):
@@ -33,60 +36,24 @@ class MediaObjectMixin(object):
 		return context
 
 
-def list(request, event_id):
-	event = get_object_or_404(Event, id=event_id)
+class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
+	context_object_name = 'media_objects'
+	template_name = 'media_objects/list.html'
+	paginate_by = 20
 
-	date_range_form = DateRangeForm(request.GET)
+	def get_queryset(self):
+		date_range_form = DateRangeForm(self.request.GET)
 
-	media_objects = MediaObject.objects.filter(event=event).select_subclasses()
+		media_objects = self.event.media_objects.select_subclasses().all()
 
-	if date_range_form.is_valid():
-		media_objects = media_objects.filter(
-			datetime__gte=date_range_form.cleaned_data['start']
-		).filter(
-			datetime__lte=date_range_form.cleaned_data['end']
-		)
+		if date_range_form.is_valid():
+			media_objects = media_objects.filter(
+				datetime__gte=date_range_form.cleaned_data['start']
+			).filter(
+				datetime__lte=date_range_form.cleaned_data['end']
+			)
 
-		response_objects = event.responses.filter(
-			datetime__gte=date_range_form.cleaned_data['start']
-		).filter(
-			datetime__lte=date_range_form.cleaned_data['end']
-		)
-
-	if request.is_ajax() or 'ajax' in request.GET:
-		media_objects_list = []
-
-		for media_object in media_objects:
-			media_objects_list.append({
-				'datetime': media_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
-				'link': media_object.url,
-				'type': media_object._meta.verbose_name,
-				'responses': [{
-						'datetime': r.datetime.isoformat(),
-						'author': r.author,
-					} for r in media_object.responses.all()],
-				'title': media_object.name})
-
-		response_objects_list = []
-
-		for response_object in response_objects:
-			response_objects_list.append({
-				'id': response_object.id,
-				'datetime': response_object.datetime.strftime('%Y-%m-%d %H:%M:%S'),
-				'source_type': response_object.source_type})
-
-		json_obj = {
-			"media_objects": media_objects_list,
-			"response_objects": response_objects_list,
-		}
-
-		return HttpResponse(simplejson.dumps(json_obj), content_type='application/json; charset=utf-8')
-
-	data = {
-		'event': event,
-		'media_objects': media_objects
-	}
-	return render(request, 'media_objects/list.html', data)
+		return media_objects
 
 
 def detail(request, event_id, media_object_id):

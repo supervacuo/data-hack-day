@@ -10,7 +10,7 @@
 {% endblock javascript %}
 
 {% block content %}<h1>
-	<a href='{% url central.views.media_objects.list event_id=event.id %}' class='btn btn-mini'>
+	<a href='{% url media_list event_id=event.id %}' class='btn btn-mini'>
 		<i class='icon-chevron-left'></i>
 	</a> Add New Youtube Video to "{{ event.name|title }}"
 </h1>

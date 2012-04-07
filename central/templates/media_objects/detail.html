@@ -2,7 +2,7 @@
 
 {% block title %}{{ block.super }}: Media Object {{ media_object.name }}{% endblock title %}
 
-{% block content %}<h1><a href='{% url central.views.media_objects.list event_id=event.id %}' class='btn btn-mini'><i class='icon-chevron-left'></i></a> {{ media_object.name }}</h1>
+{% block content %}<h1><a href='{% url media_list event_id=event.id %}' class='btn btn-mini'><i class='icon-chevron-left'></i></a> {{ media_object.name }}</h1>
 
 <div class='row'>
 	{% if media_object.thumbnail %}<div class='span4'>
