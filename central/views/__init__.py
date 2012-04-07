@@ -1,6 +1,10 @@
+from django.core.serializers.json import DateTimeAwareJSONEncoder
+from django.core import serializers
+from django.db.models.query import QuerySet
+from django.db.models import Model
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import simplejson
-from django.http import HttpResponse
 
 from central.models import *
 
@@ -27,3 +31,32 @@ def api(request, event_id):
 	}
 
 	return HttpResponse(simplejson.dumps(json_obj), content_type='application/json; charset=utf-8')
+
+
+class ModelAwareJSONEncoder(DateTimeAwareJSONEncoder):
+	def default(self, o):
+		if isinstance(o, QuerySet):
+			return serializers.serialize('python', o)
+		if isinstance(o, Model):
+			return serializers.serialize('python', [o])[0]
+		else:
+			return super(ModelAwareJSONEncoder, self).default(o)
+
+
+class JSONResponseMixin(object):
+	def render_to_response(self, context):
+		if self.request.is_ajax() or 'ajax' in self.request.GET:
+			return self.get_json_response(self.convert_context_to_json(context))
+		else:
+			return super(JSONResponseMixin, self).render_to_response(context)
+
+	def get_json_response(self, content, **httpresponse_kwargs):
+		return HttpResponse(content, content_type='application/json', **httpresponse_kwargs)
+
+	def convert_context_to_json(self, context):
+		return simplejson.dumps(context, cls=ModelAwareJSONEncoder)
+
+	def get_paginate_by(self, queryset):
+		if self.request.is_ajax() or 'ajax' in self.request.GET:
+			return None
+		return super(JSONResponseMixin, self).get_paginate_by(queryset)

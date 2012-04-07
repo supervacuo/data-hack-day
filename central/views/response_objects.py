@@ -3,7 +3,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
+from central.forms import DateRangeForm
 from central.models import ResponseObject
+from central.views import JSONResponseMixin
 from central.views.events import EventMixin
 from central.views.media_objects import MediaObjectMixin
 
@@ -21,16 +23,27 @@ class ResponseObjectMixin(object):
 		return context
 
 
-class ResponseObjectListView(MediaObjectMixin, EventMixin, ListView):
+class ResponseObjectListView(JSONResponseMixin, MediaObjectMixin, EventMixin, ListView):
 	context_object_name = 'response_objects'
 	template_name = 'response_objects/list.html'
 	paginate_by = 20
 
 	def get_queryset(self):
 		try:
-			return self.media_object.responses.all()
+			response_objects = self.media_object.responses.all()
 		except AttributeError:
-			return self.event.responses.all()
+			response_objects = self.event.responses.all()
+
+		date_range_form = DateRangeForm(self.request.GET)
+
+		if date_range_form.is_valid():
+			response_objects = response_objects.filter(
+				datetime__gte=date_range_form.cleaned_data['start']
+			).filter(
+				datetime__lte=date_range_form.cleaned_data['end']
+			)
+
+		return response_objects
 
 
 class ResponseObjectDetailView(ResponseObjectMixin, MediaObjectMixin, EventMixin, DetailView):
