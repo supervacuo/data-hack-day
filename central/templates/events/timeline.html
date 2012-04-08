@@ -56,13 +56,13 @@
 				enter().
 				append('svg:rect').
 				attr('x', function(datum) { 
-					return x(t_format.parse(datum.fields.datetime)); 
+					return x(t_format.parse(datum.datetime)); 
 				}).
 				attr('y', function(datum) { return y(1); }).
 				attr('height', 10).
 				attr('width', 10).
 				attr('fill', function(datum) { 
-					// return (datum.fields.type == 'youtube video') ? '#ffdd55' : '#808080';
+					return (datum.model == 'YouTubeVideo') ? '#ffdd55' : '#808080';
 					return '#ffdd55';
 				}).
 				attr('stroke', 'black');
@@ -74,12 +74,12 @@
 				fade: true,
 				title: function() {
 					var data = this.__data__;
-					return d3.time.format('%H:%M')(format.parse(data.datetime)) + ': ' + data.title;
+					return d3.time.format('%H:%M')(t_format.parse(data.datetime)) + ': ' + data.name;
 				}
 			});
 		});
 
-		$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
+		$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}&replies=0', function(data) {
 			vis.selectAll('circle').
 				data(data.response_objects).
 				enter().

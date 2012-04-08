@@ -55,6 +55,40 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 
 		return media_objects
 
+	def get_context_data(self, *args, **kwargs):
+		""" Replace context_data['media_objects'] QuerySet with a list of dicts.
+		
+		The JSONResponseMixin serializer can handle dicts as well as models and
+		QuerySets, and we need to be specific here because Django's
+		serializers.serialize has a couple of shortcomings:
+
+		* It uses model._meta.local_fields, and thus doesn't serialize properties
+		  inherited using multi-table inheritance (which we want to serialize
+			YoutubeVideos)
+		* There's no way to serialize reverse foreignkey relations (``responses``) """
+		context_data = super(MediaObjectListView, self).get_context_data(*args, **kwargs)
+		
+		media_object_list = []
+
+		if self.request.is_ajax() or 'ajax' in self.request.GET:
+			for media_object in context_data['media_objects']:
+				media_object_list.append({
+					'author': media_object.name,
+					'datetime': media_object.datetime,
+					'event': media_object.event_id,
+					'parent': media_object.parent_id,
+					'url': media_object.url,
+					'model': type(media_object).__name__,
+					'pk': media_object.pk,
+					'responses': [{
+						'datetime': response.datetime,
+						'url': response.url } for response in media_object.responses.all()]
+				})
+
+			context_data['media_objects'] = media_object_list
+		
+		return context_data
+
 
 def detail(request, event_id, media_object_id):
 	try:

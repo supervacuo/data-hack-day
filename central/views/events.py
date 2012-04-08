@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, UpdateView
+from django.contrib.auth.views import redirect_to_login
 
 from central.forms import AddEventForm, DateRangeForm
 from central.models import Event
@@ -13,7 +14,7 @@ class EventMixin(object):
 	def dispatch(self, request, *args, **kwargs):
 		self.event = get_object_or_404(Event, id=kwargs['event_id'])
 		if not request.user.has_perm('central.view_event', self.event):
-			raise PermissionDenied
+			return redirect_to_login(request.build_absolute_uri())
 
 		return super(EventMixin, self).dispatch(request, *args, **kwargs)
 

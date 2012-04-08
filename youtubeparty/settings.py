@@ -102,7 +102,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ANONYMOUS_USER_ID = -1
-GUARDIAN_RAISE_403 = True
+LOGIN_REDIRECT_URL = '/'
 
 try:
 	from local_settings import *

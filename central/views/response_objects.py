@@ -43,6 +43,9 @@ class ResponseObjectListView(JSONResponseMixin, MediaObjectMixin, EventMixin, Li
 				datetime__lte=date_range_form.cleaned_data['end']
 			)
 
+		if int(self.request.GET.get('replies', 1)) == 0:
+			response_objects = response_objects.filter(reply_to=None).filter(media_object=None)
+
 		return response_objects
 
 
