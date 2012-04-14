@@ -73,7 +73,8 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 		if self.request.is_ajax() or 'ajax' in self.request.GET:
 			for media_object in context_data['media_objects']:
 				media_object_list.append({
-					'author': media_object.name,
+					'name': media_object.name,
+					'author': media_object.author,
 					'datetime': media_object.datetime,
 					'event': media_object.event_id,
 					'parent': media_object.parent_id,
