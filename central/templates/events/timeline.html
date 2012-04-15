@@ -1,4 +1,4 @@
-{% extends 'events/base.html' %}
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
 {% block title %}{{ block.super }}: timeline{% endblock title %}
 
 {% block breadcrumb_items %}{{ block.super }}
@@ -12,7 +12,7 @@
 	$(document).ready(function(){
 		var padding = 20;
 		var width = 860;
-		var height = 300;
+		var height = 400;
 
 		var format = d3.time.format('%Y-%m-%d %H:%M:%S');
 		var t_format = d3.time.format('%Y-%m-%dT%H:%M:%S');
@@ -71,13 +71,14 @@
 						x(t_format.parse(datum.datetime));
 				}).
 				attr('fill', function(datum) {
-					return (datum.model == 'YouTubeVideo') ? youtube_color.brighter() : '#FDFDFD';
+					return (datum.model == 'YouTubeVideo') ? youtube_color.brighter() : '#DEDEDE';
 				});
 
 			node.append('svg:rect').
 				attr('x', function(datum) { 
 					return x(t_format.parse(datum.datetime)); 
 				}).
+				attr('class', 'media_object').
 				attr('y', -5).
 				attr('height', 10).
 				attr('width', 10).
@@ -98,7 +99,7 @@
 					return (datum.source_type == 'tw') ? twitter_color : '#808080';
 				});
 
-			$('svg rect').tipsy({ 
+			$('svg rect.media_object').tipsy({ 
 			gravity: 'w', 
 			html: true, 
 				delayOut: 500,
@@ -131,6 +132,11 @@
 <div class='span12' id='timeline' style='height: 450px;'>
 	<noscript>
 		This page uses Javascript to show you a timeline. Please enable
-		Javascript in your browser to see the full page. Thank you.
+		Javascript in your browser to see the full page.
 	</noscript>
-</div>{% endblock content %}
+</div>
+<form action='.' method='get' class='form-inline offset2'>
+	{{ date_range_form|as_bootstrap:"inline" }}
+ <input type="submit" value="Go" class="btn btn-primary">
+</form>
+{% endblock content %}

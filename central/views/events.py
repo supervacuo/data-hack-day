@@ -79,9 +79,9 @@ def timeline(request, event_id):
 
 	data = {
 		'event': event,
+		'date_range_form': date_range_form,
 		'start': start,
 		'end': end,
 	}
-
 
 	return render(request, 'events/timeline.html', data)
