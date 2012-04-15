@@ -27,6 +27,9 @@
 		var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
 		var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
 
+		var twitter_color = d3.hsl('#44CCF6');
+		var youtube_color = d3.hsl('#FFDD55');
+
 		vis.selectAll('.xTicks').
 			data(x.ticks(d3.time.minutes, 20)).
 			enter().
@@ -63,23 +66,36 @@
 				}).
 				attr('y', -5).
 				attr('height', 10).
+				attr('width', function(datum) {
+					return x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) - 
+						x(t_format.parse(datum.datetime));
+				}).
+				attr('fill', function(datum) {
+					return (datum.model == 'YouTubeVideo') ? youtube_color.brighter() : '#FDFDFD';
+				});
+
+			node.append('svg:rect').
+				attr('x', function(datum) { 
+					return x(t_format.parse(datum.datetime)); 
+				}).
+				attr('y', -5).
+				attr('height', 10).
 				attr('width', 10).
 				attr('fill', function(datum) { 
-					return (datum.model == 'YouTubeVideo') ? '#ffdd55' : '#808080';
-					return '#ffdd55';
+					return (datum.model == 'YouTubeVideo') ? youtube_color : '#808080';
 				}).
 				attr('stroke', 'black');
 
 			node.selectAll('circle').data(function(d, i) { return d.responses; }).
 				enter().
-				insert('svg:circle', 'rect').
+				append('svg:circle').
 				attr('cx', function(datum) { 
 					return x(t_format.parse(datum.datetime)); 
 				}).
 				attr('cy', 0).
 				attr('r', 3).
 				attr('fill', function(datum) { 
-					return (datum.source_type == 'tw') ? '#44CCF6' : '#808080';
+					return (datum.source_type == 'tw') ? twitter_color : '#808080';
 				});
 
 			$('svg rect').tipsy({ 
