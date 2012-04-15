@@ -5,7 +5,7 @@
 		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 		<title>{% block title %}Occupy Timeline Tool{% endblock %}</title>
 
-		{% block javascript %}<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js' type='text/javascript'></script>{% endblock javascript %}
+		{% block javascript %}<script src='{{ STATIC_URL }}js/jquery.min.js' type='text/javascript'></script>{% endblock javascript %}
 
 		{% block style %}{% bootstrap_stylesheet_tag %}
 		<!--[if lt IE 9]>
