@@ -7,7 +7,7 @@
 {% block javascript %}{{ block.super }}
 <script type='text/javascript' src='{{ STATIC_URL }}js/jquery.tipsy.js'></script>
 <link href='{{ STATIC_URL }}css/tipsy.css' rel='stylesheet' type='text/css' />
-<script type='text/javascript' src='https://github.com/mbostock/d3/raw/v2.8.1/d3.v2.js'></script>
+<script type='text/javascript' src='{{ STATIC_URL }}js/d3.v2.js'></script>
 <script type='text/javascript'>
 	$(document).ready(function(){
 		var padding = 20;
@@ -20,10 +20,10 @@
 		var start = format.parse('{{ start|date:"Y-m-d H:i:s" }}');
 		var end = format.parse('{{ end|date:"Y-m-d H:i:s" }}');
 
-		var vis = d3.select('#timeline')
-			.append('svg:svg')
-			.attr('width', width + padding * 2)
-			.attr('height', height + padding * 2);
+		var vis = d3.select('#timeline').
+			append('svg:svg').
+			attr('width', width + padding * 2).
+			attr('height', height + padding * 2);
 		var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
 		var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
 
@@ -51,14 +51,17 @@
 			attr('fill', 'black');
 
 		$.getJSON('/events/{{ event.id }}/media_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
-			vis.selectAll('rect').
+			var node = vis.selectAll('g').
 				data(data.media_objects).
 				enter().
-				append('svg:rect').
+				append('svg:g').
+				attr('transform', function() { return "translate(" + 0 + "," + y(Math.random()*2) + ")";});
+
+			node.append('svg:rect').
 				attr('x', function(datum) { 
 					return x(t_format.parse(datum.datetime)); 
 				}).
-				attr('y', function(datum) { return y(1); }).
+				attr('y', -5).
 				attr('height', 10).
 				attr('width', 10).
 				attr('fill', function(datum) { 
@@ -66,6 +69,18 @@
 					return '#ffdd55';
 				}).
 				attr('stroke', 'black');
+
+			node.selectAll('circle').data(function(d, i) { return d.responses; }).
+				enter().
+				insert('svg:circle', 'rect').
+				attr('cx', function(datum) { 
+					return x(t_format.parse(datum.datetime)); 
+				}).
+				attr('cy', 0).
+				attr('r', 3).
+				attr('fill', function(datum) { 
+					return (datum.source_type == 'tw') ? '#44CCF6' : '#808080';
+				});
 
 			$('svg rect').tipsy({ 
 			gravity: 'w', 
@@ -79,28 +94,27 @@
 			});
 		});
 
-		$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}&replies=0', function(data) {
-			vis.selectAll('circle').
-				data(data.response_objects).
-				enter().
-				append('svg:circle').
-				attr('cx', function(datum) { 
-					return x(t_format.parse(datum.fields.datetime)); 
-				}).
-				attr('cy', function(datum) { return y(Math.random() * 2); }).
-				attr('r', 2).
-				attr('fill', function(datum) { 
-					return (datum.fields.source_type == 'tw') ? '#44CCF6' : '#808080';
-				});
-
-		});
+		//$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}&replies=0', function(data) {
+		//	vis.selectAll('circle').
+		//		data(data.response_objects).
+		//		enter().
+		//		append('svg:circle').
+		//		attr('cx', function(datum) { 
+		//			return x(t_format.parse(datum.fields.datetime)); 
+		//		}).
+		//		attr('cy', function(datum) { return y(Math.random() * 2); }).
+		//		attr('r', 2).
+		//		attr('fill', function(datum) { 
+		//			return (datum.fields.source_type == 'tw') ? '#44CCF6' : '#808080';
+		//		});
+		//});
 	});
 </script>{% endblock javascript %}
 
 {% block content %}<h1>{{ event.name }} timeline</h1>
 <div class='span12' id='timeline' style='height: 450px;'>
 	<noscript>
-		This page uses Javascript to show you a Timeline. Please enable
+		This page uses Javascript to show you a timeline. Please enable
 		Javascript in your browser to see the full page. Thank you.
 	</noscript>
 </div>{% endblock content %}

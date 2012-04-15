@@ -53,7 +53,7 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 				datetime__lte=date_range_form.cleaned_data['end']
 			)
 
-		return media_objects
+		return media_objects.order_by('datetime')
 
 	def get_context_data(self, *args, **kwargs):
 		""" Replace context_data['media_objects'] QuerySet with a list of dicts.
@@ -83,7 +83,9 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 					'pk': media_object.pk,
 					'responses': [{
 						'datetime': response.datetime,
-						'url': response.url } for response in media_object.responses.all()]
+						'url': response.url,
+						'source_type': response.source_type,
+						} for response in media_object.responses.all()]
 				})
 
 			context_data['media_objects'] = media_object_list
