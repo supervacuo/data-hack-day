@@ -1,13 +1,11 @@
 import csv
-from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import SuspiciousOperation
 from django import forms
 from django.forms.models import modelformset_factory
-from django.http import HttpResponse, Http404
-from django.utils import simplejson
+from django.http import Http404
 from django.views.generic import ListView
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -40,37 +38,50 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 	context_object_name = 'media_objects'
 	template_name = 'media_objects/list.html'
 	paginate_by = 20
+	start = end = None
+
+	def _get_date_range(self):
+		if self.start and self.end:
+			return
+
+		date_range_form = DateRangeForm(self.request.GET)
+
+		if date_range_form.is_valid():
+			self.start = date_range_form.cleaned_data['start']
+			self.end = date_range_form.cleaned_data['end']
 
 	def get_queryset(self):
-		date_range_form = DateRangeForm(self.request.GET)
+		self._get_date_range()
 
 		media_objects = self.event.media_objects.select_subclasses().all()
 
-		if date_range_form.is_valid():
+		if self.start and self.end:
 			media_objects = media_objects.filter(
-				datetime__gte=date_range_form.cleaned_data['start']
+				datetime__gte=self.start
 			).filter(
-				datetime__lte=date_range_form.cleaned_data['end']
+				datetime__lte=self.end
 			)
 
 		return media_objects.order_by('datetime')
 
 	def get_context_data(self, *args, **kwargs):
 		""" Replace context_data['media_objects'] QuerySet with a list of dicts.
-		
+
 		The JSONResponseMixin serializer can handle dicts as well as models and
 		QuerySets, and we need to be specific here because Django's
 		serializers.serialize has a couple of shortcomings:
 
 		* It uses model._meta.local_fields, and thus doesn't serialize properties
-		  inherited using multi-table inheritance (which we want to serialize
+			inherited using multi-table inheritance (which we want to serialize
 			YoutubeVideos)
 		* There's no way to serialize reverse foreignkey relations (``responses``) """
 		context_data = super(MediaObjectListView, self).get_context_data(*args, **kwargs)
-		
+
 		media_object_list = []
 
 		if self.request.is_ajax() or 'ajax' in self.request.GET:
+			self._get_date_range()
+
 			for media_object in context_data['media_objects']:
 				media_object_list.append({
 					'name': media_object.name,
@@ -85,11 +96,11 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 						'datetime': response.datetime,
 						'url': response.url,
 						'source_type': response.source_type,
-						} for response in media_object.responses.all()]
+						} for response in media_object.responses.filter(datetime__gte=self.start).filter(datetime__lte=self.end)]
 				})
 
 			context_data['media_objects'] = media_object_list
-		
+
 		return context_data
 
 
