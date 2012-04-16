@@ -77,6 +77,11 @@ def timeline(request, event_id):
 		start = event.start_datetime
 		end = start + timedelta(hours=2)
 
+		date_range_form = DateRangeForm(initial={
+			'start': start,
+			'end': end,
+		})
+
 	data = {
 		'event': event,
 		'date_range_form': date_range_form,
