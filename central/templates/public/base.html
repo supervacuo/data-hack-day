@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='span8'>
+	{% block public_content %}{% endblock public_content %}
+</div>
+<div class='well span3' style='padding: 8px 0;'><ul class='nav nav-list'>
+	<li class='nav-header'>
+		Information
+	</li>
+	<li class='active'>
+		<a href='#'>About the project</a>
+	</li>
+	<li>
+		<a href='#'>Contributing</a>
+	</li>
+	<li>
+		<a href='#'>Goals / roadmap</a>
+	</li>
+	<li class='nav-header'>
+		Application
+	</li>
+	{% if request.user.is_authenticated %}
+	<li>
+		<a href='{% url event_list %}'>List events</a>
+	</li>
+	{% else %}
+	<li>
+		<a href='{% url login %}'>User login</a>
+	</li>
+	<li>
+		<a href='#'>Request access</a>
+	</li>
+	{% endif %}
+</ul></div>
+{% endblock content %}

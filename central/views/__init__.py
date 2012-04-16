@@ -10,7 +10,7 @@ from central.models import *
 
 
 def index(request):
-	return render(request, 'index.html')
+	return render(request, 'public/index.html')
 
 
 def api(request, event_id):
