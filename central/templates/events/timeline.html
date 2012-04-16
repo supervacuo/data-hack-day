@@ -27,13 +27,14 @@
 		var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
 		var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
 
-		var twitter_color = d3.hsl('#44CCF6');
-		var youtube_color = d3.hsl('#FFDD55');
-
 		var media_height_scale = d3.scale.log().
 			range([5,30]).
 			domain([1,100]).
 			clamp(true);
+
+		var color_scale = d3.scale.ordinal().
+		 range([d3.hsl('#FFDD55'), d3.hsl('#FFDD55'), d3.hsl('#44CCF6'), d3.hsl('#808080')]).
+		 domain(['yt', 'YouTubeVideo', 'tw', 'MediaObject']);
 
 		vis.selectAll('.xTicks').
 			data(x.ticks(20)).
@@ -80,7 +81,7 @@
 						x(t_format.parse(datum.datetime));
 				}).
 				attr('fill', function(datum) {
-					return (datum.model == 'YouTubeVideo') ? youtube_color.brighter() : '#DEDEDE';
+					return color_scale(datum.model).brighter();
 				});
 
 			node.append('svg:rect').
@@ -96,11 +97,11 @@
 				}).
 				attr('width', 10).
 				attr('fill', function(datum) { 
-					return (datum.model == 'YouTubeVideo') ? youtube_color : '#808080';
+					return color_scale(datum.model);
 				}).
 				attr('stroke', 'black');
 
-			node.selectAll('circle').data(function(d, i) { return d.responses; }).
+			var circles = node.selectAll('circle').data(function(d, i) { return d.responses; }).
 				enter().
 				append('svg:circle').
 				attr('cx', function(datum) { 
@@ -109,7 +110,7 @@
 				attr('cy', 0).
 				attr('r', 3).
 				attr('fill', function(datum) { 
-					return (datum.source_type == 'tw') ? twitter_color : '#808080';
+					return color_scale(datum.source_type);
 				});
 
 			$('svg rect.media_object').tipsy({ 
