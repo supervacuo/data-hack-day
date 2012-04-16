@@ -30,8 +30,13 @@
 		var twitter_color = d3.hsl('#44CCF6');
 		var youtube_color = d3.hsl('#FFDD55');
 
+		var media_height_scale = d3.scale.log().
+			range([5,30]).
+			domain([1,100]).
+			clamp(true);
+
 		vis.selectAll('.xTicks').
-			data(x.ticks(d3.time.minutes, 20)).
+			data(x.ticks(20)).
 			enter().
 			append('svg:line').
 			attr('x1', x).
@@ -42,7 +47,7 @@
 			attr('class', 'yTicks');
 
 		vis.selectAll('text.xAxis').
-			data(x.ticks(d3.time.minutes, 20)).
+			data(x.ticks(20)).
 			enter().
 			append('svg:text').
 			text(function(date_tick) {
@@ -64,8 +69,12 @@
 				attr('x', function(datum) { 
 					return x(t_format.parse(datum.datetime)); 
 				}).
-				attr('y', -5).
-				attr('height', 10).
+				attr('y', function(datum) { 
+				 return 0 - media_height_scale(datum.responses.length) / 2;
+				}).
+				attr('height', function(datum) { 
+				 return media_height_scale(datum.responses.length);
+				}).
 				attr('width', function(datum) {
 					return x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) - 
 						x(t_format.parse(datum.datetime));
@@ -79,8 +88,12 @@
 					return x(t_format.parse(datum.datetime)); 
 				}).
 				attr('class', 'media_object').
-				attr('y', -5).
-				attr('height', 10).
+				attr('y', function(datum) { 
+				 return 0 - media_height_scale(datum.responses.length) / 2;
+				}).
+				attr('height', function(datum) { 
+				 return media_height_scale(datum.responses.length);
+				}).
 				attr('width', 10).
 				attr('fill', function(datum) { 
 					return (datum.model == 'YouTubeVideo') ? youtube_color : '#808080';
