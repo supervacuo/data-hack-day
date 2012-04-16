@@ -39,9 +39,10 @@ To-do
 ----------------------------------
 
 * Find a better name for the project...
-* New hierarchical layout for `d3.js`_, and navigation.
-* Show tweets on the timeline visualisation.
-* Work out the best way for users to bulk-import Twitter data.
+* Navigation controls on visualisation.
+* Use beeswarm plots for responses.
+* Work out some kind of bundling / packing layout for the overall visualisation.
+* Bulk add interface for YouTube, Twitter, *etc.*
 * Use Topsy.com API more cleverly; deal with paginated responses and large
   result sets.
 * Implement proper user profile and registration system.
@@ -82,7 +83,6 @@ above) or e-mail (above; slightly lower down), please.
 
 .. _Django: http://djangoproject.com
 .. _python-gdata YouTube API: https://developers.google.com/youtube/1.0/developers_guide_python
-.. _SIMILE Timeline widget: http://www.simile-widgets.org/timeline/
 .. _OccupyData Hackfest NYC: http://occupydatanyc.wordpress.com/
 .. _d3.js: http://mbostock.github.com/d3/
 .. _django-mptt: https://github.com/django-mptt/django-mptt
