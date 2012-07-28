@@ -136,7 +136,7 @@ def delete(request, event_id, media_object_id):
 	if request.method == 'POST' or request.is_ajax or 'ajax' in request.GET:
 		media_object.delete()
 		messages.success(request, 'Deleted media object "%s"' % media_object.name)
-		return redirect(list, event_id=event.id)
+		return redirect('media_list', event_id=event.id)
 
 	data = {
 		'event': event,
@@ -191,7 +191,7 @@ def add_csv(request, event_id):
 				media_objects.append(media_object)
 
 			messages.success(request, 'Imported %d new media objects' % len(media_objects))
-			return redirect(list, event_id=event.id)
+			return redirect('media_list', event_id=event.id)
 	else:
 		form = AddMediaObjectCSVForm()
 
