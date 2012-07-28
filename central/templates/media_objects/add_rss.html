@@ -16,10 +16,12 @@
 	Add Media Objects to "{{ event.name|title }}"
 </h1>
 
-<div>
-	<form action='.' method='post' enctype='multipart/form-data'>
+<div id='form_wrapper'>
+	<p id='non_field_errors'>
+	<form action='{% url central.views.media_objects.add_rss event_id=event.id %}' method='post' enctype='multipart/form-data'>
 		{% csrf_token %}
 		{{ form|as_bootstrap }}
 		<button type='submit' class='btn btn-primary'>Add media object <i class='icon-plus-sign icon-white'></i>
-	</form>
+		</form>
+	</p>
 </div>{% endblock content %}

@@ -7,12 +7,44 @@
 
 {% block content %}<h1>All Media Objects for "{{ event.name }}"</h1>
 
+{% block javascript %}{{ block.super }}
+<script src='{{ STATIC_URL }}js/bootstrap-modal.js' type='text/javascript'></script>
+<script src='{{ STATIC_URL }}js/jquery.form.js' type='text/javascript'></script>
+<script type='text/javascript'>
+	$(document).ready(function (){
+		$('a[data-toggle=modal]').click(function (){
+			target = $(this).attr('data-target');
+			url = $(this).attr('href');
+			$(target).load(url + ' #form_wrapper', function (){
+				$(target).find('form').ajaxForm({
+					'success': function(formData) {
+						if (formData.errors != null) {
+							for (field in formData.errors) {
+								if (field == '__all__') {
+									$('#non_field_errors').text(formData.errors[field].toString());
+								} else {
+									$('#id_'+field).parent().addClass('error');
+								}
+								console.log(field);
+								console.log(formData.errors[field]);
+							}
+						} else {
+							// Everything was fine; show a success message
+							$(target).modal('hide');
+						}
+					},
+				});
+			});
+		});
+	});
+</script>{% endblock javascript %}
+
 <p>Showing {{ media_objects.count|pluralize:"all " }}{{ media_objects.count }} media object{{ media_objects.count|pluralize }}.</p>
 
 <p>
 	<a class='btn' href='{% url central.views.media_objects.add event_id=event.id %}'>Add manually <i class='icon-plus-sign'></i></a>
 	<a class='btn' href='{% url central.views.media_objects.add_csv event_id=event.id %}'>Add with CSV <i class='icon-plus-sign'></i></a>
-	<a class='btn' href='{% url central.views.media_objects.add_rss event_id=event.id %}'>Add with RSS <i class='icon-plus-sign'></i></a>
+	<a class='btn' href='{% url central.views.media_objects.add_rss event_id=event.id %}' data-toggle='modal' data-target='#modal_content'>Add with RSS <i class='icon-plus-sign'></i></a>
 	<a class='btn' href='{% url central.views.media_objects.add_youtube_by_id event_id=event.id %}'>Add YouTube video <i class='icon-plus-sign'></i></a>
 </p>
 
@@ -23,7 +55,7 @@
 			<strong><a href='{% url central.views.media_objects.detail event_id=event.id media_object_id=media_object.id %}'>{{ media_object.name }}</a></strong>
 		</p>
 		<p>
-			<span class='label label-info'> {{ media_object.author }}</span>, 
+			<span class='label label-info'> {{ media_object.author }}</span>,
 			<em>{{ media_object.datetime }}</em>
 			<a href='{% url response_list_by_media event_id=event.id,media_object_id=media_object.id %}'>{{ media_object.responses.count }} response{{ media_object.responses.count|pluralize }}</a>
 		</p>
@@ -37,5 +69,5 @@
 <div class="row">
 	{{ page_obj|pagination }}
 </div>
-
+<div class='modal fade' id='modal_content'></div>
 {% endblock content %}

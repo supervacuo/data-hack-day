@@ -7,12 +7,13 @@ from django.contrib import messages
 from django.core.exceptions import SuspiciousOperation
 from django import forms
 from django.forms.models import modelformset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.generic import ListView
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import simplejson
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
-from central.forms import * 
+from central.forms import *
 from central.views import JSONResponseMixin
 from central.views.events import EventMixin
 
@@ -227,7 +228,16 @@ def add_rss(request, event_id):
 				media_object.save()
 
 			messages.success(request, 'Imported %d new media objects' % len(feed.entries))
-			return redirect('media_list', event_id=event.id)
+			if request.is_ajax:
+				return HttpResponse()
+			else:
+				return redirect('media_list', event_id=event.id)
+		elif request.is_ajax():
+			# So the form is invalid, and was submitted with AJAX. Respond with a JSON
+			# list of the errors
+			response = {'errors': dict(form.errors.iteritems())}
+			response_json = simplejson.dumps(response, ensure_ascii=False)
+			return HttpResponse(response_json, mimetype='application/json')
 	else:
 		form = AddMediaObjectRSSForm()
 
