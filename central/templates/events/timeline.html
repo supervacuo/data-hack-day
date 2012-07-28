@@ -77,8 +77,9 @@
 				 return media_height_scale(datum.responses.length);
 				}).
 				attr('width', function(datum) {
-					return x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) - 
-						x(t_format.parse(datum.datetime));
+					return (datum.responses.length > 0) ?
+						x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) - 
+							x(t_format.parse(datum.datetime)) : 10;
 				}).
 				attr('fill', function(datum) {
 					return color_scale(datum.model).brighter();
