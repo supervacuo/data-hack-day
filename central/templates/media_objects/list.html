@@ -12,6 +12,7 @@
 <p>
 	<a class='btn' href='{% url central.views.media_objects.add event_id=event.id %}'>Add manually <i class='icon-plus-sign'></i></a>
 	<a class='btn' href='{% url central.views.media_objects.add_csv event_id=event.id %}'>Add with CSV <i class='icon-plus-sign'></i></a>
+	<a class='btn' href='{% url central.views.media_objects.add_rss event_id=event.id %}'>Add with RSS <i class='icon-plus-sign'></i></a>
 	<a class='btn' href='{% url central.views.media_objects.add_youtube_by_id event_id=event.id %}'>Add YouTube video <i class='icon-plus-sign'></i></a>
 </p>
 
