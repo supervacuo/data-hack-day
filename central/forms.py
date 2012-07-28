@@ -67,8 +67,8 @@ class AddMediaObjectRSSForm(forms.Form):
 	_file = forms.FileField(required=False)
 
 	def clean(self):
-		if self.cleaned_data['url'] and self.cleaned_data['_file']:
+		if self.cleaned_data.get('url') and self.cleaned_data.get('_file'):
 			raise forms.ValidationError('Specify either a link or an RSS file, not both')
-		if not self.cleaned_data['url'] and not self.cleaned_data['_file']:
+		if not self.cleaned_data.get('url') and not self.cleaned_data.get('_file'):
 			raise forms.ValidationError('You didn\'t provide an RSS file')
 		return self.cleaned_data
