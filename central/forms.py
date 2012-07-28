@@ -39,7 +39,7 @@ class AddMediaObjectForm(forms.ModelForm):
 class AddYouTubeVideoForm(forms.ModelForm):
 	class Meta:
 		model = YouTubeVideo
-		exclude = ('media_object','event')
+		exclude = ('media_object', 'event')
 
 
 class AddYouTubeIDForm(forms.Form):
@@ -47,7 +47,7 @@ class AddYouTubeIDForm(forms.Form):
 
 
 class AddMediaObjectCSVForm(forms.Form):
-	csv_file = forms.FileField(label='CSV file', 
+	csv_file = forms.FileField(label='CSV file',
 		help_text=u'''Select a CSV(comma-separated value) file from your computer to
 			upload new media objects.''')
 
@@ -60,3 +60,15 @@ class AddMediaObjectCSVForm(forms.Form):
 class DateRangeForm(forms.Form):
 	start = forms.DateTimeField()
 	end = forms.DateTimeField()
+
+
+class AddMediaObjectRSSForm(forms.Form):
+	url = forms.URLField(required=False)
+	_file = forms.FileField(required=False)
+
+	def clean(self):
+		if self.cleaned_data['url'] and self.cleaned_data['_file']:
+			raise forms.ValidationError('Specify either a link or an RSS file, not both')
+		if not self.cleaned_data['url'] and not self.cleaned_data['_file']:
+			raise forms.ValidationError('You didn\'t provide an RSS file')
+		return self.cleaned_data

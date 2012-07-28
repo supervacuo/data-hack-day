@@ -1,0 +1,25 @@
+{% extends 'events/base.html' %}{% load bootstrap_toolkit %}
+
+{% block title %}{{ block.super }}: Add Media Objects to {{ event.name|title }}{% endblock title %}
+
+{% block javascript %}
+		{{ form.media }}
+{% endblock javascript %}
+
+{% block breadcrumb_items %}{{ block.super }}
+<li><span class="divider">/</span> Add Media Objects from RSS</li>{% endblock %}
+
+{% block content %}<h1>
+	<a class='btn btn-mini' href='{% url media_list event_id=event.id %}'>
+		<i class='icon-chevron-left'></i>
+	</a>
+	Add Media Objects to "{{ event.name|title }}"
+</h1>
+
+<div>
+	<form action='.' method='post' enctype='multipart/form-data'>
+		{% csrf_token %}
+		{{ form|as_bootstrap }}
+		<button type='submit' class='btn btn-primary'>Add media object <i class='icon-plus-sign icon-white'></i>
+	</form>
+</div>{% endblock content %}

@@ -28,6 +28,7 @@ urlpatterns = patterns('',
 	# Add MediaObjects
 	url(r'^events/(?P<event_id>\d*)/media_objects/add/$', 'central.views.media_objects.add'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/add_csv/$', 'central.views.media_objects.add_csv'),
+	url(r'^events/(?P<event_id>\d*)/media_objects/add_rss/$', 'central.views.media_objects.add_rss'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/add_youtube/$', 'central.views.media_objects.add_youtube'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/add_youtube_by_id/$', 'central.views.media_objects.add_youtube_by_id'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/add_youtube_in_bulk/$', 'central.views.media_objects.add_youtube_in_bulk'),

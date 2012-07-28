@@ -1,4 +1,6 @@
 import csv
+import feedparser
+import dateutil.parser
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,7 +12,7 @@ from django.views.generic import ListView
 from django.shortcuts import render, redirect, get_object_or_404
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
-from central.forms import AddMediaObjectForm, AddYouTubeIDForm, AddYouTubeVideoForm, AddMediaObjectCSVForm, DateRangeForm
+from central.forms import * 
 from central.views import JSONResponseMixin
 from central.views.events import EventMixin
 
@@ -199,6 +201,43 @@ def add_csv(request, event_id):
 	}
 
 	return render(request, 'media_objects/add_csv.html', data)
+
+
+@login_required
+def add_rss(request, event_id):
+	event = get_object_or_404(Event, id=event_id)
+
+	if request.method == 'POST':
+		form = AddMediaObjectRSSForm(request. POST, request.FILES)
+
+		if form.is_valid():
+			if form.cleaned_data['url']:
+				feed = feedparser.parse(form.cleaned_data['url'])
+			elif form.cleaned_data['_file']:
+				feed = feedparser.parse(form.cleaned_data['_file'])
+
+			for entry in feed.entries:
+				date_published = dateutil.parser.parse(entry.published)
+				media_object = MediaObject(
+					datetime=(date_published - date_published.utcoffset()).replace(tzinfo=None),
+					name=entry.title,
+					url=entry.link,
+					author=entry.author)
+				media_object.event = event
+				media_object.save()
+
+			messages.success(request, 'Imported %d new media objects' % len(feed.entries))
+			return redirect('media_list', event_id=event.id)
+	else:
+		form = AddMediaObjectRSSForm()
+
+	data = {
+		'event': event,
+		'form': form,
+	}
+
+	return render(request, 'media_objects/add_rss.html', data)
+
 
 
 @login_required
