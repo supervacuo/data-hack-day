@@ -14,7 +14,7 @@ from django.utils import simplejson
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
 from central.forms import *
-from central.views import JSONResponseMixin
+from central.views import JSONResponseMixin, ModelAwareJSONEncoder
 from central.views.events import EventMixin
 
 
@@ -217,6 +217,8 @@ def add_rss(request, event_id):
 			elif form.cleaned_data['_file']:
 				feed = feedparser.parse(form.cleaned_data['_file'])
 
+			media_objects = []
+
 			for entry in feed.entries:
 				date_published = dateutil.parser.parse(entry.published)
 				media_object = MediaObject(
@@ -225,11 +227,15 @@ def add_rss(request, event_id):
 					url=entry.link,
 					author=entry.author)
 				media_object.event = event
-				media_object.save()
+				#media_object.save()
+				media_objects.append(media_object)
 
-			messages.success(request, 'Imported %d new media objects' % len(feed.entries))
+			messages.success(request, 'Imported %d new media objects' % len(media_objects))
 			if request.is_ajax:
-				return HttpResponse()
+				response = {'media_objects': media_objects}
+				response_json = simplejson.dumps(response, ensure_ascii=False, cls=ModelAwareJSONEncoder)
+				return HttpResponse(response_json, mimetype='application/json')
+
 			else:
 				return redirect('media_list', event_id=event.id)
 		elif request.is_ajax():
