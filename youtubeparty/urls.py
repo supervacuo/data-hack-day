@@ -17,11 +17,11 @@ urlpatterns = patterns('',
 	# Modify Events
 	url(r'^events/(?P<event_id>\d*)/edit/$', EventUpdateView.as_view(), name='event_update'),
 	# Add Events
-	url(r'^events/add/$', 'central.views.events.add'),
+	url(r'^events/add/$', 'central.views.events.add', name='event_add'),
 	
 	# Display MediaObjects
 	url(r'^events/(?P<event_id>\d*)/media_objects/$', MediaObjectListView.as_view(), name='media_list'),
-	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/$', 'central.views.media_objects.detail'),
+	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/$', 'central.views.media_objects.detail', name='media_detail'),
 	# Modify MediaObjects
 	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/edit/$', 'central.views.media_objects.edit'),
 	url(r'^events/(?P<event_id>\d*)/media_objects/(?P<media_object_id>\d*)/delete/$', 'central.views.media_objects.delete'),
