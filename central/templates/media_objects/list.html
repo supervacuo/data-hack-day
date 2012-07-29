@@ -15,7 +15,8 @@
 		$('a[data-toggle=modal]').click(function (){
 			target = $(this).attr('data-target');
 			url = $(this).attr('href');
-			$(target).load(url + ' #form_wrapper', function (){
+			$(target).find('.modal-header h3').text(this.text);
+			$(target).find('.modal-body').load(url + ' #form_wrapper', function (){
 				$(target).find('form').ajaxForm({
 					'success': function(formData) {
 						if (formData.errors != null) {
@@ -25,11 +26,11 @@
 								} else {
 									$('#id_'+field).parent().addClass('error');
 								}
-								console.log(field);
-								console.log(formData.errors[field]);
 							}
 						} else {
-							// Everything was fine; show a success message
+							t.each(formData, function(index, value) {
+								console.log(value);
+							});
 							$(target).modal('hide');
 						}
 					},
@@ -69,5 +70,12 @@
 <div class="row">
 	{{ page_obj|pagination }}
 </div>
-<div class='modal fade' id='modal_content'></div>
+<div class='modal fade' id='modal_content'>
+	<div class='modal-header'>
+		<button type='button' class='close' data-dismiss='modal'>×</button>
+		<h3></h3>
+	</div>
+	<div class='modal-body'>
+	</div>
+</div>
 {% endblock content %}
