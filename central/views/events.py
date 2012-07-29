@@ -6,6 +6,8 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, UpdateView
 from django.contrib.auth.views import redirect_to_login
 
+from guardian.shortcuts import assign
+
 from central.forms import AddEventForm, DateRangeForm
 from central.models import Event
 from central.views import LoginRequiredMixin
@@ -48,13 +50,14 @@ class EventUpdateView(EventMixin, UpdateView):
 	def get_object(self):
 		return self.event
 
+
 @login_required
 def add(request):
 	form = AddEventForm(request.POST or None)
 	if request.method == 'POST':
 		if form.is_valid():
 			event = form.save()
-
+			assign('view_event', request.user, event)
 			return redirect(event)
 	else:
 		form = AddEventForm()
