@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }}: page not found{% endblock title %}
+
+{% block public_content %}<h1>Page not found</h1>
+
+<p>
+	The page you're trying to access cannot be found.
+</p>
+
+{% endblock public_content %}
