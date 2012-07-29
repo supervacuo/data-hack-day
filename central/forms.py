@@ -63,8 +63,8 @@ class DateRangeForm(forms.Form):
 
 
 class AddMediaObjectRSSForm(forms.Form):
-	url = forms.URLField(required=False)
-	_file = forms.FileField(required=False)
+	url = forms.URLField(required=False, label='On the web')
+	_file = forms.FileField(required=False, label='On your computer')
 
 	def clean(self):
 		if self.cleaned_data.get('url') and self.cleaned_data.get('_file'):
