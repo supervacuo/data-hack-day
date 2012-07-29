@@ -18,20 +18,27 @@
 			$(target).find('.modal-header h3').text(this.text);
 			$(target).find('.modal-body').load(url + ' #form_wrapper', function (){
 				$(target).find('form').ajaxForm({
-					'success': function(formData) {
-						if (formData.errors != null) {
-							for (field in formData.errors) {
-								if (field == '__all__') {
-									$('#non_field_errors').text(formData.errors[field].toString());
-								} else {
-									$('#id_'+field).parent().addClass('error');
+					'success': function(response, status, xhr) {
+						// differentiate between HTML and JSON responses
+						var ct = xhr.getResponseHeader("content-type") || "";
+						if (ct.indexOf('html') > -1) {
+							$(target).find('.modal-body').replaceWith($(response).find('#form_wrapper'));
+						}
+						if (ct.indexOf('json') > -1) {
+							if (response.errors != null) {
+								for (field in response.errors) {
+									if (field == '__all__') {
+										$('#non_field_errors').text(response.errors[field].toString());
+									} else {
+										$('#id_'+field).parent().addClass('error');
+									}
 								}
+							} else {
+								$.each(response, function(index, value) {
+									console.log(value);
+								});
+								$(target).modal('hide');
 							}
-						} else {
-							$.each(formData, function(index, value) {
-								console.log(value);
-							});
-							$(target).modal('hide');
 						}
 					},
 				});
@@ -43,10 +50,8 @@
 <p>Showing {{ media_objects.count|pluralize:"all " }}{{ media_objects.count }} media object{{ media_objects.count|pluralize }}.</p>
 
 <p>
-	<a class='btn' href='{% url central.views.media_objects.add event_id=event.id %}'>Add manually <i class='icon-plus-sign'></i></a>
-	<a class='btn' href='{% url central.views.media_objects.add_csv event_id=event.id %}'>Add with CSV <i class='icon-plus-sign'></i></a>
 	<a class='btn' href='{% url central.views.media_objects.add_rss event_id=event.id %}' data-toggle='modal' data-target='#modal_content'>Add with RSS <i class='icon-plus-sign'></i></a>
-	<a class='btn' href='{% url central.views.media_objects.add_youtube_by_id event_id=event.id %}'>Add YouTube video <i class='icon-plus-sign'></i></a>
+	<a class='btn' href='{% url central.views.media_objects.add_youtube_by_id event_id=event.id %}' data-toggle='modal' data-target='#modal_content'>Add YouTube video <i class='icon-plus-sign'></i></a>
 </p>
 
 {% for media_object in media_objects %}

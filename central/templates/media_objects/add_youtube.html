@@ -15,10 +15,10 @@
 	</a> Add New Youtube Video to "{{ event.name|title }}"
 </h1>
 
-<div>
-	<form action='.' method='post'>
+<div id='form_wrapper'>
+	<form action='{% url central.views.media_objects.add_youtube event_id=event.id %}' method='post' class='form-horizontal'>
 		{% csrf_token %}
-		{{ youtube_form|as_bootstrap }}
+		{{ youtube_form|as_bootstrap:'horizontal' }}
 		{{ youtube_comments_formset }}
 	 <input type='submit' value='Add video' class='btn btn-primary'>
 	</form>

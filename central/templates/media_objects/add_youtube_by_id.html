@@ -15,7 +15,8 @@
 	</a> Add New Youtube Video to "{{ event.name|title }}"
 </h1>
 
-<div>
+<div id='form_wrapper'>
+	<p id='non_field_errors'></p>
 	<form action='{% url central.views.media_objects.add_youtube event_id=event.id %}' method='get'>
 		{{ form.youtube_id|as_bootstrap }}
 	 <input type='submit' value='Fetch video' class='btn btn-primary'>

@@ -256,7 +256,6 @@ def add_rss(request, event_id):
 	return render(request, 'media_objects/add_rss.html', data)
 
 
-
 @login_required
 def add_youtube_by_id(request, event_id):
 	event = get_object_or_404(Event, id=event_id)
@@ -285,7 +284,7 @@ def add_youtube(request, event_id):
 		ResponseObjectFormSet = modelformset_factory(
 			ResponseObject,
 			exclude=('id', 'event', 'media_object', 'reply_to'),
-			# Shouldn't be necessary in this coder's humble opinion
+			# Shouldn't be necessary, in this coder's humble opinion
 			extra=len([k for k in request.POST.keys() if 'response_object' in k]),
 			formfield_callback=lambda f: f.formfield(widget=forms.HiddenInput))
 
