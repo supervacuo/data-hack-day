@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 from central.forms import DateRangeForm
 from central.models import ResponseObject
-from central.views import JSONResponseMixin
+from central.views import JSONResponseMixin, LoginRequiredMixin
 from central.views.events import EventMixin
 from central.views.media_objects import MediaObjectMixin
 
@@ -23,7 +23,7 @@ class ResponseObjectMixin(object):
 		return context
 
 
-class ResponseObjectListView(JSONResponseMixin, MediaObjectMixin, EventMixin, ListView):
+class ResponseObjectListView(LoginRequiredMixin, JSONResponseMixin, MediaObjectMixin, EventMixin, ListView):
 	context_object_name = 'response_objects'
 	template_name = 'response_objects/list.html'
 	paginate_by = 20
@@ -49,7 +49,7 @@ class ResponseObjectListView(JSONResponseMixin, MediaObjectMixin, EventMixin, Li
 		return response_objects
 
 
-class ResponseObjectDetailView(ResponseObjectMixin, MediaObjectMixin, EventMixin, DetailView):
+class ResponseObjectDetailView(LoginRequiredMixin, ResponseObjectMixin, MediaObjectMixin, EventMixin, DetailView):
 	context_object_name = 'response_object'
 	template_name = 'response_objects/detail.html'
 
@@ -57,7 +57,7 @@ class ResponseObjectDetailView(ResponseObjectMixin, MediaObjectMixin, EventMixin
 		return self.response_object
 
 
-class ResponseObjectCreateView(MediaObjectMixin, EventMixin, CreateView):
+class ResponseObjectCreateView(LoginRequiredMixin, MediaObjectMixin, EventMixin, CreateView):
 	model = ResponseObject
 	template_name = 'response_objects/add.html'
 
@@ -75,7 +75,7 @@ class ResponseObjectCreateView(MediaObjectMixin, EventMixin, CreateView):
 		return super(ResponseObjectCreateView, self).dispatch(request, *args, **kwargs)
 
 
-class ResponseObjectUpdateView(ResponseObjectMixin, MediaObjectMixin, EventMixin, UpdateView):
+class ResponseObjectUpdateView(LoginRequiredMixin, ResponseObjectMixin, MediaObjectMixin, EventMixin, UpdateView):
 	model = ResponseObject
 	template_name = 'response_objects/edit.html'
 
@@ -85,7 +85,7 @@ class ResponseObjectUpdateView(ResponseObjectMixin, MediaObjectMixin, EventMixin
 		return self.response_object
 
 
-class ResponseObjectDeleteView(ResponseObjectMixin, MediaObjectMixin, EventMixin, DeleteView):
+class ResponseObjectDeleteView(LoginRequiredMixin, ResponseObjectMixin, MediaObjectMixin, EventMixin, DeleteView):
 	model = ResponseObject
 	template_name = 'response_objects/delete.html'
 

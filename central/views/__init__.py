@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DateTimeAwareJSONEncoder
 from django.core import serializers
 from django.db.models.query import QuerySet
@@ -5,6 +6,8 @@ from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import simplejson
+from django.utils.decorators import method_decorator
+
 
 from central.models import *
 
@@ -60,3 +63,9 @@ class JSONResponseMixin(object):
 		if self.request.is_ajax() or 'ajax' in self.request.GET:
 			return None
 		return super(JSONResponseMixin, self).get_paginate_by(queryset)
+
+
+class LoginRequiredMixin(object):
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)

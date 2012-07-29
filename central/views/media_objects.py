@@ -14,7 +14,7 @@ from django.utils import simplejson
 
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
 from central.forms import *
-from central.views import JSONResponseMixin, ModelAwareJSONEncoder
+from central.views import JSONResponseMixin, ModelAwareJSONEncoder, LoginRequiredMixin
 from central.views.events import EventMixin
 
 
@@ -37,7 +37,7 @@ class MediaObjectMixin(object):
 		return context
 
 
-class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
+class MediaObjectListView(LoginRequiredMixin, JSONResponseMixin, EventMixin, ListView):
 	context_object_name = 'media_objects'
 	template_name = 'media_objects/list.html'
 	paginate_by = 20
@@ -107,6 +107,7 @@ class MediaObjectListView(JSONResponseMixin, EventMixin, ListView):
 		return context_data
 
 
+@login_required
 def detail(request, event_id, media_object_id):
 	try:
 		media_object = MediaObject.objects.get_subclass(id=media_object_id)

@@ -8,6 +8,7 @@ from django.contrib.auth.views import redirect_to_login
 
 from central.forms import AddEventForm, DateRangeForm
 from central.models import Event
+from central.views import LoginRequiredMixin
 
 
 class EventMixin(object):
@@ -25,7 +26,7 @@ class EventMixin(object):
 		return context
 
 
-class EventDetailView(EventMixin, DetailView):
+class EventDetailView(LoginRequiredMixin, EventMixin, DetailView):
 	context_object_name = 'event'
 	template_name = 'events/detail.html'
 	model = Event
@@ -34,7 +35,7 @@ class EventDetailView(EventMixin, DetailView):
 		return self.event
 
 
-class EventListView(ListView):
+class EventListView(LoginRequiredMixin, ListView):
 	context_object_name = 'events'
 	template_name = 'events/list.html'
 	model = Event
