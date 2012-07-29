@@ -7,10 +7,10 @@ Overview
 ----------------------------------
 
 ``data-hack-day`` is a `Django`_ application\ [#resuable]_ to visualise social
-media data, developed during the `OccupyData Hackfest NYC`_, March 23-24
-2012. It currently handles YouTube videos (using the `python-gdata YouTube API`_\ )
-and manually-entered or CSV-uploaded online news articles, and draws a timeline
-using `d3.js`_.
+media data, started during the `OccupyData Hackfest NYC`_, March 23-24 2012.
+It currently handles YouTube videos (using the `python-gdata YouTube API`_\ ),
+and online news articles (RSS, CSV or manual entry), and draws a timeline using
+`d3.js`_.
 
 Installing
 ----------------------------------
@@ -31,14 +31,16 @@ Features
 * Automatically import some metadata from YouTube videos and their comments by
   pasting in the video ID, thanks to the `python-gdata YouTube API`_.
 * Create "Media objects" corresponding to online news stories, either by manual
-  entry or CSV upload.
+  entry, CSV upload or RSS parsing (*e.g.* for use with Google Alerts)
 * Manage (edit and delete) "Media objects".
 * Bugs and incompleteness (see below)
 
 To-do
 ----------------------------------
 
-* Find a better name for the project...
+* Find a better name for the project (the main instance is likely to be called
+  "Media Lineage"; see our
+  `unfortunately-not-buzzwordy-enough-and-thus-unsuccessful-funding-proposal`_).
 * Navigation controls on visualisation.
 * Use beeswarm plots for responses.
 * Work out some kind of bundling / packing layout for the overall visualisation.
@@ -47,9 +49,10 @@ To-do
   result sets.
 * Implement proper user profile and registration system.
 * Date picker widget (tried; failed due to `Django bug`_).
-* CSV upload error handling and documentation.
+* CSV upload error handling and documentation (or just drop this for the alpha
+  version)
 * Non-stupid tree implementation using `django-mptt`_.
-* Tests.
+* More tests.
 * Clean up code, complete transition to class-based views, implement
   `django-guardian`_ carefully in all relevant views.
 * *etc.* *etc.*
@@ -68,8 +71,7 @@ Oh yes there are.
 Licence
 ----------------------------------
 
-As many rights reserved as possible until I can work out which copyleft licence
-I *can* release this under (hopefully AGPL).
+`AGPL`_
 
 Contributing
 ----------------------------------
@@ -83,9 +85,11 @@ above) or e-mail (above; slightly lower down), please.
 
 .. _Django: http://djangoproject.com
 .. _python-gdata YouTube API: https://developers.google.com/youtube/1.0/developers_guide_python
+.. _unfortunately-not-buzzwordy-enough-and-thus-unsuccessful-funding-proposal: http://bit.ly/KRxOGM
 .. _OccupyData Hackfest NYC: http://occupydatanyc.wordpress.com/
 .. _d3.js: http://mbostock.github.com/d3/
 .. _django-mptt: https://github.com/django-mptt/django-mptt
 .. _django-guardian: https://github.com/lukaszb/django-guardian
 .. _bootstrap: http://twitter.github.com/bootstrap/
 .. _Django bug: https://code.djangoproject.com/ticket/17981
+.. _AGPL: http://www.gnu.org/licenses/agpl.html
