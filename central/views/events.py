@@ -3,11 +3,10 @@ from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, UpdateView
-from django.contrib.auth.views import redirect_to_login
 
 from guardian.shortcuts import assign
+from guardian.shortcuts import get_objects_for_user
 
 from central.forms import AddEventForm, DateRangeForm
 from central.models import Event
@@ -43,6 +42,9 @@ class EventListView(LoginRequiredMixin, ListView):
 	context_object_name = 'events'
 	template_name = 'events/list.html'
 	model = Event
+
+	def get_queryset(self):
+		return get_objects_for_user(self.request.user, 'central.view_event')
 
 
 class EventUpdateView(EventMixin, UpdateView):
