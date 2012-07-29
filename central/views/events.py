@@ -8,7 +8,7 @@ from django.views.generic import ListView, DetailView, UpdateView
 from guardian.shortcuts import assign
 from guardian.shortcuts import get_objects_for_user
 
-from central.forms import AddEventForm, DateRangeForm
+from central.forms import EventForm, DateRangeForm
 from central.models import Event
 from central.views import LoginRequiredMixin
 
@@ -50,6 +50,7 @@ class EventListView(LoginRequiredMixin, ListView):
 class EventUpdateView(EventMixin, UpdateView):
 	template_name = 'events/edit.html'
 	model = Event
+	form_class = EventForm
 
 	def get_object(self):
 		return self.event
@@ -57,14 +58,14 @@ class EventUpdateView(EventMixin, UpdateView):
 
 @login_required
 def add(request):
-	form = AddEventForm(request.POST or None)
+	form = EventForm(request.POST or None)
 	if request.method == 'POST':
 		if form.is_valid():
 			event = form.save()
 			assign('view_event', request.user, event)
 			return redirect(event)
 	else:
-		form = AddEventForm()
+		form = EventForm()
 
 	data = {
 		'form': form,

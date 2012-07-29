@@ -5,7 +5,7 @@ from django import forms
 from central.models import Event, MediaObject, YouTubeVideo, ResponseObject
 
 
-class AddEventForm(forms.ModelForm):
+class EventForm(forms.ModelForm):
 	class Meta:
 		model = Event
 		#widgets = {

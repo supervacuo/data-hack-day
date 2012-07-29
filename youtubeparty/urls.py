@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 	url(r'^events/(?P<event_id>\d*)/$', EventDetailView.as_view(), name='event_detail'),
 	url(r'^events/(?P<event_id>\d*)/timeline/$', 'central.views.events.timeline'),
 	# Modify Events
-	url(r'^events/(?P<event_id>\d*)/edit/$', EventUpdateView.as_view(), name='event_update'),
+	url(r'^events/(?P<event_id>\d*)/edit/$', EventUpdateView.as_view(), name='event_edit'),
 	# Add Events
 	url(r'^events/add/$', 'central.views.events.add', name='event_add'),
 	
