@@ -17,11 +17,10 @@
 </h1>
 
 <div id='form_wrapper'>
-	<p id='non_field_errors'>
+	<p id='non_field_errors'></p>
 	<form action='{% url central.views.media_objects.add_rss event_id=event.id %}' method='post' enctype='multipart/form-data'>
 		{% csrf_token %}
 		{{ form|as_bootstrap }}
 		<button type='submit' class='btn btn-primary'>Add media object <i class='icon-plus-sign icon-white'></i>
 		</form>
-	</p>
 </div>{% endblock content %}
