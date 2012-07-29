@@ -103,3 +103,38 @@ class EventTest(TestCase):
 		self.assertRedirects(response, reverse('event_detail', kwargs={
 			'event_id': event.id
 		}))
+
+	def test_view_event(self):
+		self.client.login(username='wei', password='test')
+
+		event = Event.objects.get(id=1)
+
+		response = self.client.get(reverse('event_list'))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'events/list.html')
+		# Although there are two events in the fixture, `wei` should only be able to
+		# see one of them
+		self.assertEqual(len(response.context['events']), 1)
+		self.assertEqual(response.context['events'][0], event)
+
+		# Valid event which `wei` can access; expect success
+		response = self.client.get(reverse('event_detail', kwargs={
+			'event_id': event.id
+		}))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'events/detail.html')
+		self.assertEqual(response.context['event'], event)
+
+		# Valid event, but `wei` hasn't been granted access. Redirect to list
+		response = self.client.get(reverse('event_detail', kwargs={
+			'event_id': 2
+		}), follow=True)
+		self.assertRedirects(response, reverse('event_list'))
+		# Check that the "don't have access message" is shown
+		self.assertEqual(len(response.context['messages']), 1)
+
+		# Non-existent event. 404 error
+		response = self.client.get(reverse('event_detail', kwargs={
+			'event_id': 3
+		}))
+		self.assertEqual(response.status_code, 404)
