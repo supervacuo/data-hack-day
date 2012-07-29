@@ -147,9 +147,9 @@ class EventTest(TestCase):
 		# Send valid form data using POST
 		response = self.client.post(event_edit_url, {
 			'name': 'Zuccotti Park Occupation',
-			'start_datetime_0': '2011-11-15',
+			'start_datetime_0': '2011-09-17',
 			'start_datetime_1': '00:00',
-			'end_datetime_0': '2011-11-16',
+			'end_datetime_0': '2011-09-20',
 			'end_datetime_1': '00:00',
 		})
 		event = Event.objects.get(id=event.id)
@@ -157,6 +157,35 @@ class EventTest(TestCase):
 		self.assertRedirects(response, reverse('event_detail', kwargs={
 			'event_id': event.id
 		}))
+
+		unreachable_event_edit_url = reverse('event_edit', kwargs={
+			'event_id': 2
+		})
+		response = self.client.get(unreachable_event_edit_url, follow=True)
+		self.assertRedirects(response, reverse('event_list'))
+		# Check that the "don't have access message" is shown
+		self.assertEqual(len(response.context['messages']), 1)
+		
+		# Send valid form data to an incorrect event
+		new_event_data = {
+			'name': 'Someone else\'s vandalism',
+			'start_datetime_0': '2012-12-12',
+			'start_datetime_1': '00:00',
+			'end_datetime_0': '2012-12-12',
+			'end_datetime_1': '00:00',
+		}
+		response = self.client.post(unreachable_event_edit_url, new_event_data, follow=True)
+		self.assertRedirects(response, reverse('event_list'))
+		self.assertEqual(len(response.context['messages']), 1)
+		# Check the event *hasn't* been updated
+		event = Event.objects.get(id=2)
+		self.assertNotEqual(event.name, new_event_data['name'])
+
+		response = self.client.get(reverse('event_edit', kwargs={
+			'event_id': 3
+		}))
+		self.assertEqual(response.status_code, 404)
+
 
 	def test_view_event(self):
 		self.client.login(username='wei', password='test')
@@ -184,7 +213,6 @@ class EventTest(TestCase):
 			'event_id': 2
 		}), follow=True)
 		self.assertRedirects(response, reverse('event_list'))
-		# Check that the "don't have access message" is shown
 		self.assertEqual(len(response.context['messages']), 1)
 
 		# Non-existent event. 404 error
