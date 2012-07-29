@@ -104,6 +104,60 @@ class EventTest(TestCase):
 			'event_id': event.id
 		}))
 
+	def test_edit_event(self):
+		self.client.login(username='wei', password='test')
+
+		event = Event.objects.get(id=1)
+
+		event_edit_url = reverse('event_edit', kwargs={
+			'event_id': event.id
+		})
+
+		response = self.client.get(event_edit_url)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'events/edit.html')
+
+		# Send blank form data using POST
+		response = self.client.post(event_edit_url, {
+			'name': ''
+		})
+		# Should re-show the form...
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'events/edit.html')
+		# ... with some errors
+		self.assertFormError(response, 'form', 'name', 'This field is required.')
+		self.assertFormError(response, 'form', 'start_datetime', 'This field is required.')
+		self.assertFormError(response, 'form', 'end_datetime', 'This field is required.')
+
+		# Send invalid form data using POST
+		response = self.client.post(event_edit_url, {
+			'name': event.name,
+			'start_datetime_0': 'invalid',
+			'start_datetime_1': 'invalid',
+			'end_datetime_0': 'invalid',
+			'end_datetime_1': 'invalid',
+		})
+		# Should re-show the form...
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'events/edit.html')
+		# ... with some errors
+		self.assertFormError(response, 'form', 'start_datetime', 'Enter a valid date/time.')
+		self.assertFormError(response, 'form', 'end_datetime', 'Enter a valid date/time.')
+
+		# Send valid form data using POST
+		response = self.client.post(event_edit_url, {
+			'name': 'Zuccotti Park Occupation',
+			'start_datetime_0': '2011-11-15',
+			'start_datetime_1': '00:00',
+			'end_datetime_0': '2011-11-16',
+			'end_datetime_1': '00:00',
+		})
+		event = Event.objects.get(id=event.id)
+		self.assertEqual(event.name, 'Zuccotti Park Occupation')
+		self.assertRedirects(response, reverse('event_detail', kwargs={
+			'event_id': event.id
+		}))
+
 	def test_view_event(self):
 		self.client.login(username='wei', password='test')
 
