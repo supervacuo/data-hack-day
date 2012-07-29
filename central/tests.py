@@ -9,7 +9,7 @@ class PublicTest(TestCase):
 		"""
 		Ensure all public pages can be loaded without errors
 		"""
-		for page in ['/', 'contributing', 'roadmap']:
+		for page in ['', '/contributing/', '/roadmap/']:
 			response = self.client.get(page)
 			self.assertEqual(response.status_code, 200)
 			self.assertTemplateUsed(response, 'public/index.html')

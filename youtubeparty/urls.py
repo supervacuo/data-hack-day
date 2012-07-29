@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 
 admin.autodiscover()
 
@@ -9,6 +10,8 @@ from central.views.media_objects import *
 
 urlpatterns = patterns('',
 	url(r'^$', 'central.views.index'),
+	url(r'^contributing/$', TemplateView.as_view(template_name='contributing.html')),
+	url(r'^roadmap/$', TemplateView.as_view(template_name='roadmap.html')),
 
 	# Display Events
 	url(r'^events/$', EventListView.as_view(), name='event_list'),
