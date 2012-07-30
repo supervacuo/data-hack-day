@@ -51,12 +51,15 @@ class PublicTest(TestCase):
 		response = self.client.get(response_detail_url)
 		self.assertRedirects(response, reverse('login') + '?next=%s' % response_detail_url)
 
+
 class EventTest(TestCase):
 	fixtures = ('test',)
 
-	def test_add_event(self):
+	def setUp(self):
 		self.client.login(username='wei', password='test')
+		self.event = Event.objects.get(id=1)
 
+	def test_add_event(self):
 		event_add_url = reverse('event_add')
 
 		response = self.client.get(event_add_url)
@@ -105,12 +108,8 @@ class EventTest(TestCase):
 		}))
 
 	def test_edit_event(self):
-		self.client.login(username='wei', password='test')
-
-		event = Event.objects.get(id=1)
-
 		event_edit_url = reverse('event_edit', kwargs={
-			'event_id': event.id
+			'event_id': self.event.id
 		})
 
 		response = self.client.get(event_edit_url)
@@ -131,7 +130,7 @@ class EventTest(TestCase):
 
 		# Send invalid form data using POST
 		response = self.client.post(event_edit_url, {
-			'name': event.name,
+			'name': self.event.name,
 			'start_datetime_0': 'invalid',
 			'start_datetime_1': 'invalid',
 			'end_datetime_0': 'invalid',
@@ -152,7 +151,7 @@ class EventTest(TestCase):
 			'end_datetime_0': '2011-09-20',
 			'end_datetime_1': '00:00',
 		})
-		event = Event.objects.get(id=event.id)
+		event = Event.objects.get(id=self.event.id)
 		self.assertEqual(event.name, 'Zuccotti Park Occupation')
 		self.assertRedirects(response, reverse('event_detail', kwargs={
 			'event_id': event.id
@@ -186,27 +185,22 @@ class EventTest(TestCase):
 		}))
 		self.assertEqual(response.status_code, 404)
 
-
 	def test_view_event(self):
-		self.client.login(username='wei', password='test')
-
-		event = Event.objects.get(id=1)
-
 		response = self.client.get(reverse('event_list'))
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'events/list.html')
 		# Although there are two events in the fixture, `wei` should only be able to
 		# see one of them
 		self.assertEqual(len(response.context['events']), 1)
-		self.assertEqual(response.context['events'][0], event)
+		self.assertEqual(response.context['events'][0], self.event)
 
 		# Valid event which `wei` can access; expect success
 		response = self.client.get(reverse('event_detail', kwargs={
-			'event_id': event.id
+			'event_id': self.event.id
 		}))
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'events/detail.html')
-		self.assertEqual(response.context['event'], event)
+		self.assertEqual(response.context['event'], self.event)
 
 		# Valid event, but `wei` hasn't been granted access. Redirect to list
 		response = self.client.get(reverse('event_detail', kwargs={
