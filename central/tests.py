@@ -214,3 +214,17 @@ class EventTest(TestCase):
 			'event_id': 3
 		}))
 		self.assertEqual(response.status_code, 404)
+
+
+class MediaObjectTest(TestCase):
+	fixtures = ('test',)
+
+	def setUp(self):
+		self.client.login(username='wei', password='test')
+		self.event = Event.objects.get(id=1)
+
+	def test_add_media_object(self):
+		response = self.client.get(reverse('media_list', kwargs={
+			'event_id': self.event.id
+		}))
+		self.assertEqual(response.status_code, 200)
