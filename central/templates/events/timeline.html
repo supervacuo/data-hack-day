@@ -12,6 +12,8 @@
 		var width = 860;
 		var height = 400;
 
+    var delay = 500;
+
 		var format = d3.time.format('%Y-%m-%d %H:%M:%S');
 		var t_format = d3.time.format('%Y-%m-%dT%H:%M:%S');
 
@@ -22,8 +24,9 @@
 			append('svg:svg').
 			attr('width', width + padding * 2).
 			attr('height', height + padding * 2);
-		var x = d3.time.scale().domain([start, end]).range([padding, width+padding]);
-		var y = d3.scale.linear().domain([0,2]).range([padding, height+padding]);
+		var x = d3.time.scale().range([padding, width+padding]);
+		var x_old = d3.time.scale().range([padding, width+padding]);
+		var y = d3.scale.linear().rangeRound([padding, height]);
 
 		var media_height_scale = d3.scale.log().
 			range([5,30]).
@@ -34,83 +37,144 @@
 		 range([d3.hsl('#FFDD55'), d3.hsl('#FFDD55'), d3.hsl('#44CCF6'), d3.hsl('#808080')]).
 		 domain(['yt', 'YouTubeVideo', 'tw', 'MediaObject']);
 
-		vis.selectAll('.xTicks').
-			data(x.ticks(20)).
-			enter().
-			append('svg:line').
-			attr('x1', x).
-			attr('y1', padding).
-			attr('x2', x).
-			attr('y2', height + padding).
-			attr('stroke', 'lightgrey').
-			attr('class', 'yTicks');
+    var body = vis.append('g').
+			attr('transform', 'translate(0,0)');
 
-		vis.selectAll('text.xAxis').
-			data(x.ticks(20)).
-			enter().
-			append('svg:text').
-			text(function(date_tick) {
-				return d3.time.format('%H:%M')(date_tick);
-			}).
-			attr('x', x).
-			attr('y', height + padding + 10).
-			attr('text-anchor', 'middle').
-			attr('fill', 'black');
+    function redraw() {
+      $.getJSON('/events/{{ event.id }}/media_objects/?start=' + format(start) + '&end=' + format(end), function(data) {
+        x.domain([start, end]);
+        y.domain([0, data.media_objects.length]);
 
-		$.getJSON('/events/{{ event.id }}/media_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}', function(data) {
-			var node = vis.selectAll('g').
-				data(data.media_objects).
-				enter().
-				append('svg:g').
-				attr('transform', function() { return "translate(" + 0 + "," + y(Math.random()*2) + ")";});
+        var x_tick = body.selectAll('g.tick').
+          data(x.ticks(20), function(d) { return d.getTime(); });
 
-			node.append('svg:rect').
-				attr('x', function(datum) { 
-					return x(t_format.parse(datum.datetime)); 
-				}).
-				attr('y', function(datum) { 
-				 return 0 - media_height_scale(datum.responses.length) / 2;
-				}).
-				attr('height', function(datum) { 
-				 return media_height_scale(datum.responses.length);
-				}).
-				attr('width', function(datum) {
-					return (datum.responses.length > 0) ?
-						x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) - 
-							x(t_format.parse(datum.datetime)) : 10;
-				}).
-				attr('fill', function(datum) {
-					return color_scale(datum.model).brighter();
-				});
+        var x_tick_enter = x_tick.enter().append('svg:g').
+          attr('class', 'tick').
+          style("opacity", 1e-6).
+          attr('transform', function(d) { 
+            return "translate(" + x_old(d) + "," + padding + ")"; 
+          })
 
-			node.append('svg:rect').
-				attr('x', function(datum) { 
-					return x(t_format.parse(datum.datetime)); 
-				}).
-				attr('class', 'media_object').
-				attr('y', function(datum) { 
-				 return 0 - media_height_scale(datum.responses.length) / 2;
-				}).
-				attr('height', function(datum) { 
-				 return media_height_scale(datum.responses.length);
-				}).
-				attr('width', 10).
-				attr('fill', function(datum) { 
-					return color_scale(datum.model);
-				}).
-				attr('stroke', 'black');
+        x_tick_enter.append('svg:line').
+          attr('y1', height + padding - 15).
+          attr('stroke', 'lightgrey');
 
-			var circles = node.selectAll('circle').data(function(d, i) { return d.responses; }).
+        x_tick_enter.append('svg:text').
+          text(function(date_tick) {
+            return d3.time.format('%H:%M')(date_tick);
+          }).
+          attr('y', height + padding).
+          attr('text-anchor', 'middle').
+          attr('fill', 'black');
+
+        x_tick_enter.transition().
+          duration(delay).
+          attr('transform', function(d) { 
+            return 'translate(' + x(d) + ',' + padding + ')';
+          }).
+          style("opacity", 1);
+
+        x_tick.transition().
+          duration(delay).
+          attr('transform', function(d) { 
+            return 'translate(' + x(d) + ',' + padding + ')';
+          }).
+          style("opacity", 1);
+
+        x_tick.exit().transition().
+          duration(delay).
+          attr('transform', function(d) { 
+            return 'translate(' + x(d) + ',' + padding + ')';
+          }).
+          remove();
+
+        var node = body.selectAll('g.node').
+          data(data.media_objects, function(d) { return d.pk });
+
+        var node_enter = node.enter().
+          append('svg:g').
+          attr('class', 'node').
+          attr('transform', function(d, i) { return "translate(" + x_old(t_format.parse(d.datetime)) + "," + y(i) + ")";});
+
+        node_enter.transition().
+          duration(delay).
+          attr('transform', function(d, i) { 
+            return 'translate(' + x(t_format.parse(d.datetime)) + ',' + y(i) + ')';
+          });
+
+        node.transition().
+          duration(delay).
+          attr('transform', function(d, i) { 
+            return 'translate(' + x(t_format.parse(d.datetime)) + ',' + y(i) + ')';
+          });
+
+        node.exit().transition().
+          duration(delay).
+          attr('transform', function(d, i) { 
+            return 'translate(' + x(t_format.parse(d.datetime)) + ',' + y(i) + ')';
+          }).
+          remove();
+
+        node_enter.append('svg:rect').
+          attr('y', function(datum) {
+            return 0 - media_height_scale(datum.responses.length) / 2;
+          }).
+          attr('height', function(datum) {
+            return media_height_scale(datum.responses.length);
+          }).
+          attr('width', function(datum) {
+            return (datum.responses.length > 0) ?
+              x(t_format.parse(d3.max(datum.responses, function(d) { return d.datetime; }))) -
+                x(t_format.parse(datum.datetime)) : 10;
+          }).
+          attr('fill', function(datum) {
+            return color_scale(datum.model).brighter();
+          });
+
+        node_enter.append('svg:rect').
+          attr('class', 'media_object').
+          attr('y', function(datum) {
+            return 0 - media_height_scale(datum.responses.length) / 2;
+          }).
+          attr('height', function(datum) {
+            return media_height_scale(datum.responses.length);
+          }).
+          attr('width', 10).
+          attr('fill', function(datum) {
+            return color_scale(datum.model);
+          }).
+          attr('stroke', 'black');
+
+			/*var circles = node.selectAll('circle').data(function(d, i) { return d.responses; }).
 				enter().
 				append('svg:circle').
-				attr('cx', function(datum) { 
-					return x(t_format.parse(datum.datetime)); 
+				attr('cx', function(datum) {
+					return x(t_format.parse(datum.datetime));
 				}).
 				attr('cy', 0).
 				attr('r', 3).
-				attr('fill', function(datum) { 
+				attr('fill', function(datum) {
 					return color_scale(datum.source_type);
 				});*/
+
+        x_old.domain([start, end]);
+      });
+    }
+    redraw();
+    $('nav#time a[href="#back"]').click(function() {
+      var delta = (end - start) / 2;
+      start = new Date(start - delta);
+      end = new Date(end - delta);
+      redraw();
+      return false;
+    });
+    $('nav#time a[href="#forward"]').click(function() {
+      var delta = (end - start) / 2;
+      start = new Date(start.getTime() + delta);
+      end = new Date(end.getTime() + delta);
+      redraw();
+      return false;
+    });
 
 	});
 </script>{% endblock javascript %}
@@ -121,7 +185,11 @@
 		This page uses Javascript to show you a timeline. Please enable
 		Javascript in your browser to see the full page.
 	</noscript>
-</div>
+ </div>
+ <nav id='time'>
+	<a href='#back'>Back</a>
+	<a href='#forward'>Forward</a>
+ </nav>
 <form action='.' method='get' class='form-inline offset2'>
 	{{ date_range_form|as_bootstrap:"inline" }}
  <input type="submit" value="Go" class="btn btn-primary">
