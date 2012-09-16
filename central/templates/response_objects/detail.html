@@ -38,7 +38,14 @@
 				<tr>
 					<td>Type</td>
 					<td>{{ response_object.source_type }}</td>
-				</tr>
+				</tr>{% if response_object.media_object %}
+				<tr>
+					<td>Response to</td>
+					<td>
+						<a href='{% url media_detail event_id=event.id media_object_id=response_object.media_object.id %}'>
+						{{ response_object.media_object.name }}</a>
+					</td>
+				</tr>{% endif %}
 			</tbody>
 		</table>
 	</div>
