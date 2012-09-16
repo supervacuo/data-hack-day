@@ -5,8 +5,6 @@
 <li><span class="divider">/</span> Timeline</li>{% endblock %}
 
 {% block javascript %}{{ block.super }}
-<script type='text/javascript' src='{{ STATIC_URL }}js/jquery.tipsy.js'></script>
-<link href='{{ STATIC_URL }}css/tipsy.css' rel='stylesheet' type='text/css' />
 <script type='text/javascript' src='{{ STATIC_URL }}js/d3.v2.js'></script>
 <script type='text/javascript'>
 	$(document).ready(function(){
@@ -112,34 +110,8 @@
 				attr('r', 3).
 				attr('fill', function(datum) { 
 					return color_scale(datum.source_type);
-				});
+				});*/
 
-			$('svg rect.media_object').tipsy({ 
-			gravity: 'w', 
-			html: true, 
-				delayOut: 500,
-				fade: true,
-				title: function() {
-					var data = this.__data__;
-					return d3.time.format('%H:%M')(t_format.parse(data.datetime)) + ': ' + data.name;
-				}
-			});
-		});
-
-		//$.getJSON('/events/{{ event.id }}/response_objects/?start={{ start|date:"Y-m-d H:i:s" }}&end={{ end|date:"Y-m-d H:i:s" }}&replies=0', function(data) {
-		//	vis.selectAll('circle').
-		//		data(data.response_objects).
-		//		enter().
-		//		append('svg:circle').
-		//		attr('cx', function(datum) { 
-		//			return x(t_format.parse(datum.fields.datetime)); 
-		//		}).
-		//		attr('cy', function(datum) { return y(Math.random() * 2); }).
-		//		attr('r', 2).
-		//		attr('fill', function(datum) { 
-		//			return (datum.fields.source_type == 'tw') ? '#44CCF6' : '#808080';
-		//		});
-		//});
 	});
 </script>{% endblock javascript %}
 
